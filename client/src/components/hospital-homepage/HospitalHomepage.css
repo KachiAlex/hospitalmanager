@@ -1,0 +1,64 @@
+/* Hospital Homepage Main Styles */
+@import './styles/base.css';
+@import './components/Header.css';
+@import './components/HeroSection.css';
+@import './components/ServicesSection.css';
+@import './components/WhyChooseUsSection.css';
+@import './components/ContactSection.css';
+@import './components/Footer.css';
+
+/* Reset and normalize for hospital homepage */
+.hospital-homepage * {
+  box-sizing: border-box;
+}
+
+.hospital-homepage {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Override any global styles that might interfere */
+.hospital-homepage body {
+  margin: 0;
+  padding: 0;
+  display: block;
+  place-items: initial;
+  min-width: auto;
+  min-height: auto;
+}
+
+/* Ensure proper text color in light mode */
+.hospital-homepage,
+.hospital-homepage * {
+  color-scheme: light;
+}
+
+/* Smooth scrolling for internal navigation */
+.hospital-homepage {
+  scroll-behavior: smooth;
+}
+
+/* Focus management for accessibility */
+.hospital-homepage *:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Skip link for accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--primary-color);
+  color: var(--medical-white);
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 0 0 4px 4px;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 0;
+}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hospital Management API</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        margin: 0;
+        background: radial-gradient(circle at top, #e0f2ff, #f4f6fb 45%, #ffffff 80%);
+        color: #0f172a;
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 3rem 1.5rem 4rem;
+      }
+      header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+      }
+      h1 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        margin: 0;
+      }
+      p.lead {
+        font-size: 1.1rem;
+        max-width: 60ch;
+        color: #334155;
+      }
+      section {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 18px;
+        padding: 1.5rem;
+        box-shadow: 0 15px 45px rgba(15, 23, 42, 0.08);
+        margin-bottom: 1.5rem;
+      }
+      h2 {
+        margin-top: 0;
+        margin-bottom: 0.75rem;
+        font-size: 1.4rem;
+        color: #0f172a;
+      }
+      pre {
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 1rem;
+        border-radius: 12px;
+        overflow-x: auto;
+        font-size: 0.95rem;
+      }
+      code {
+        font-family: 'Fira Code', 'SFMono-Regular', Consolas, 'Roboto Mono', monospace;
+      }
+      ul {
+        padding-left: 1.5rem;
+        color: #475569;
+      }
+      footer {
+        text-align: center;
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-top: 2rem;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: radial-gradient(circle at top, #0f172a, #111827 60%, #020617 100%);
+          color: #e2e8f0;
+        }
+        section {
+          background: rgba(15, 23, 42, 0.7);
+          box-shadow: 0 25px 50px rgba(2, 6, 23, 0.6);
+        }
+        p.lead,
+        ul {
+          color: #cbd5f5;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Hospital Management API</h1>
+        <p class="lead">
+          Lightweight backend to onboard patients, manage encounters, issue lab orders and prescriptions, and control admissions with bed assignments.
+        </p>
+      </header>
+
+      <section>
+        <h2>Quick Start</h2>
+        <pre><code>npm install
+npm start
+# Base URL: http://localhost:3000</code></pre>
+      </section>
+
+      <section>
+        <h2>Key Endpoints</h2>
+        <ul>
+          <li>GET /health – service heartbeat</li>
+          <li>POST /patients – register patient</li>
+          <li>POST /doctors – add doctor profile</li>
+          <li>POST /encounters – doctor visit w/ notes</li>
+          <li>POST /lab-orders &amp; PATCH /lab-orders/:id – manage labs</li>
+          <li>POST /prescriptions – medication plan</li>
+          <li>GET /beds – ward/bed availability</li>
+          <li>POST /admissions &amp; /admissions/:id/discharge – bed workflow</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Sample Flow</h2>
+        <pre><code>curl -X POST http://localhost:3000/doctors \ 
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Ada","lastName":"Byron","specialty":"Cardiology"}'
+
+curl -X POST http://localhost:3000/patients \ 
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"John","lastName":"Doe","gender":"male","dateOfBirth":"1980-04-01"}'
+
+curl -X POST http://localhost:3000/encounters \ 
+  -H "Content-Type: application/json" \
+  -d '{"patientId":1,"doctorId":1,"visitDate":"2025-12-30"}'</code></pre>
+      </section>
+
+      <footer>Documentation resides in README.md · Built with Express + SQLite</footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,171 @@
+/* Footer Component Styles */
+.hospital-homepage.footer {
+  background-color: var(--medical-gray-800);
+  color: var(--medical-gray-200);
+  padding: 2rem 0;
+  border-top: 1px solid var(--medical-gray-700);
+}
+
+.footer .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.copyright {
+  font-size: 0.875rem;
+  color: var(--medical-gray-300);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.footer-link {
+  font-size: 0.875rem;
+  color: var(--medical-gray-200);
+  text-decoration: none;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+}
+
+.footer-link:hover {
+  color: var(--medical-white);
+  background-color: var(--medical-gray-700);
+  text-decoration: underline;
+}
+
+.footer-link:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-color);
+  color: var(--medical-white);
+}
+
+.footer-link:active {
+  background-color: var(--medical-gray-600);
+}
+
+.footer-separator {
+  color: var(--medical-gray-500);
+  font-size: 0.875rem;
+  user-select: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer {
+    padding: 1.5rem 0;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+  .footer-info {
+    order: 2;
+  }
+
+  .footer-links {
+    order: 1;
+    justify-content: center;
+  }
+
+  .copyright {
+    font-size: 0.8125rem;
+  }
+
+  .footer-link {
+    font-size: 0.8125rem;
+    padding: 0.625rem 0.75rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .footer-content {
+    gap: 1.5rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .footer {
+    background-color: var(--medical-gray-900);
+    border-top-width: 2px;
+    border-top-color: var(--medical-gray-600);
+  }
+
+  .footer-link {
+    border: 1px solid transparent;
+  }
+
+  .footer-link:hover,
+  .footer-link:focus {
+    border-color: var(--medical-white);
+    background-color: var(--medical-gray-700);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .footer-link {
+    transition: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .footer {
+    background-color: var(--medical-white);
+    color: var(--text-primary);
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 0;
+  }
+
+  .footer-content {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .copyright {
+    color: var(--text-secondary);
+  }
+
+  .footer-links {
+    display: none;
+  }
+}
+
+/* Focus management for keyboard navigation */
+.footer-link:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Ensure proper color contrast */
+@supports (color-contrast(white vs black)) {
+  .footer-link {
+    color: color-contrast(var(--medical-gray-800) vs var(--medical-gray-200), var(--medical-white));
+  }
+}

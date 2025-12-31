@@ -1,0 +1,243 @@
+/* Services Section Styles */
+.hospital-homepage.services-section {
+  background-color: var(--medical-gray-50);
+  padding: 5rem 0;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.section-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.services-grid {
+  gap: 2rem;
+}
+
+/* Service Card Styles */
+.service-card {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  background-color: var(--medical-white);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease-in-out;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-color: var(--primary-color);
+}
+
+.service-icon {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--medical-blue-100), var(--medical-green-100));
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.service-icon .icon {
+  color: var(--primary-color);
+  width: 48px;
+  height: 48px;
+}
+
+.service-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.service-description {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  flex-grow: 1;
+}
+
+/* Responsive Grid */
+@media (max-width: 768px) {
+  .services-section {
+    padding: 3rem 0;
+  }
+
+  .section-header {
+    margin-bottom: 2rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .service-card {
+    padding: 2rem 1.25rem;
+  }
+
+  .service-icon {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 1.25rem;
+  }
+
+  .service-icon .icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .service-title {
+    font-size: 1.125rem;
+  }
+
+  .service-description {
+    font-size: 0.9375rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .services-section {
+    padding: 4rem 0;
+  }
+
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem;
+  }
+
+  .service-card {
+    padding: 2.25rem 1.375rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .services-section {
+    padding: 6rem 0;
+  }
+
+  .section-header {
+    margin-bottom: 4rem;
+  }
+
+  .section-title {
+    font-size: 3rem;
+  }
+
+  .section-subtitle {
+    font-size: 1.25rem;
+  }
+
+  .services-grid {
+    gap: 2.5rem;
+  }
+
+  .service-card {
+    padding: 3rem 2rem;
+  }
+}
+
+/* Focus states for accessibility */
+.service-card:focus-within {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .service-card {
+    border-width: 2px;
+  }
+
+  .service-card:hover {
+    border-width: 3px;
+    border-color: var(--primary-color);
+  }
+
+  .service-icon {
+    background: var(--primary-color);
+  }
+
+  .service-icon .icon {
+    color: var(--medical-white);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .service-card {
+    transition: none;
+  }
+
+  .service-card:hover {
+    transform: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .services-section {
+    background-color: var(--medical-white);
+    padding: 2rem 0;
+  }
+
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .service-card {
+    box-shadow: none;
+    border: 1px solid var(--border-color);
+    padding: 1.5rem 1rem;
+  }
+
+  .service-icon {
+    background: var(--medical-gray-100);
+    width: 60px;
+    height: 60px;
+  }
+
+  .service-icon .icon {
+    width: 32px;
+    height: 32px;
+  }
+}
