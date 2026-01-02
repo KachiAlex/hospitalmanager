@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import AdminDashboard from './AdminDashboard';
 import StaffDashboard from './StaffDashboard';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import './App.css';
 
 function App() {
@@ -84,6 +85,8 @@ function App() {
     const password = loginForm.password.trim();
     const role = loginForm.role.trim();
     
+    console.log('Login attempt:', { email, role }); // Debug log
+    
     // Validate input fields
     if (!email || !password) {
       toast.error('Please fill in all fields');
@@ -97,12 +100,16 @@ function App() {
       account.role === role
     );
     
+    console.log('Matching account found:', !!matchingAccount); // Debug log
+    
     if (matchingAccount) {
+      console.log('Setting current user:', matchingAccount.name); // Debug log
       toast.success(`Welcome back, ${matchingAccount.name}!`);
       setCurrentUser(matchingAccount);
       setShowStaffLogin(false);
       setLoginForm({ email: '', password: '', role: 'doctor' });
     } else {
+      console.log('Login failed - no matching account'); // Debug log
       toast.error('Invalid credentials. Please check your email, password, and role selection.');
     }
   };
@@ -112,11 +119,21 @@ function App() {
   };
 
   // Route to appropriate dashboard based on role
+  console.log('Current user state:', currentUser); // Debug log
   if (currentUser) {
+    console.log('Routing to dashboard for role:', currentUser.role); // Debug log
     if (currentUser.role === 'admin') {
-      return <AdminDashboard currentUser={currentUser} onLogout={handleLogout} />;
+      return (
+        <ErrorBoundary onLogout={handleLogout}>
+          <AdminDashboard currentUser={currentUser} onLogout={handleLogout} />
+        </ErrorBoundary>
+      );
     } else {
-      return <StaffDashboard currentUser={currentUser} onLogout={handleLogout} />;
+      return (
+        <ErrorBoundary onLogout={handleLogout}>
+          <StaffDashboard currentUser={currentUser} onLogout={handleLogout} />
+        </ErrorBoundary>
+      );
     }
   }
 
