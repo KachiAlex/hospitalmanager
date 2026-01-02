@@ -350,6 +350,23 @@ const StaffDashboard = ({ currentUser, onLogout }) => {
                   margin: '0.5rem 0 0 0', 
                   fontSize: isMobile ? '0.85rem' : '0.9rem' 
                 }}>{currentUser.title} - {currentUser.department}</p>
+                {dashboardStats?.isOffline && (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    marginTop: '0.5rem',
+                    padding: '0.5rem 0.75rem',
+                    background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
+                    border: '1px solid #f59e0b',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    color: '#92400e'
+                  }}>
+                    <span>⚠️</span>
+                    <span>Using offline data - Server connection unavailable</span>
+                  </div>
+                )}
               </div>
               
               {/* Stats Grid */}

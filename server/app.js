@@ -13,9 +13,27 @@ const {
 } = require('./schemas');
 const { init, db } = require('./db');
 
+console.log('Starting T-Happy Hospital Server...');
+console.log('Initializing database...');
 init();
+console.log('Database initialized successfully!');
 
 const app = express();
+
+// CORS middleware to allow frontend access
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 app.use(express.json());
 const publicDir = path.join(__dirname, '..', 'public');
 app.use(express.static(publicDir));
@@ -373,12 +391,13 @@ app.use((err, _req, res, _next) => {
   res.status(status).json({ message: err.message || 'Unexpected error' });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Hospital management API running on http://localhost:${PORT}`);
+    console.log(`🏥 T-Happy Hospital Management API running on http://localhost:${PORT}`);
+    console.log(`📊 Health check available at http://localhost:${PORT}/health`);
+    console.log('🚀 Server ready to accept connections!');
   });
 }
 

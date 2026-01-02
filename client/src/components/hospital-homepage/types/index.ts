@@ -49,7 +49,7 @@ export interface ContactInfo {
   mapEmbedUrl?: string;
 }
 
-interface ContactSectionProps {
+export interface ContactSectionProps {
   contactInfo: ContactInfo;
   id?: string;
 }

@@ -1,0 +1,319 @@
+/* Medical Branding CSS Variables and Base Styles for Hospital Homepage Redesign */
+
+:root {
+  /* Primary Color Palette - Professional Medical Blues */
+  --redesign-primary-blue: #4338ca;
+  --redesign-secondary-blue: #6366f1;
+  --redesign-accent-blue: #3b82f6;
+  --redesign-light-blue: #dbeafe;
+  --redesign-blue-gradient: linear-gradient(to right, #4338ca, #6366f1);
+  
+  /* Emergency and CTA Colors - Medical Red */
+  --redesign-emergency-red: #dc2626;
+  --redesign-emergency-red-hover: #ef4444;
+  --redesign-emergency-red-light: #fecaca;
+  
+  /* Background Colors - Clean Medical Appearance */
+  --redesign-background-white: #ffffff;
+  --redesign-background-light-gray: #f9fafb;
+  --redesign-background-gray: #f3f4f6;
+  --redesign-background-dark: #1f2937;
+  
+  /* Text Colors - Professional Typography */
+  --redesign-text-primary: #1f2937;
+  --redesign-text-secondary: #4b5563;
+  --redesign-text-light: #6b7280;
+  --redesign-text-white: #ffffff;
+  
+  /* Professional Typography - Inter and Roboto */
+  --redesign-font-primary: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --redesign-font-secondary: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  
+  /* Font Sizes - Consistent Scale */
+  --redesign-text-xs: 0.75rem;
+  --redesign-text-sm: 0.875rem;
+  --redesign-text-base: 1rem;
+  --redesign-text-lg: 1.125rem;
+  --redesign-text-xl: 1.25rem;
+  --redesign-text-2xl: 1.5rem;
+  --redesign-text-3xl: 1.875rem;
+  --redesign-text-4xl: 2.25rem;
+  --redesign-text-5xl: 3rem;
+  --redesign-text-6xl: 3.75rem;
+  
+  /* Spacing Scale - Consistent Layout */
+  --redesign-spacing-xs: 0.25rem;
+  --redesign-spacing-sm: 0.5rem;
+  --redesign-spacing-md: 1rem;
+  --redesign-spacing-lg: 1.5rem;
+  --redesign-spacing-xl: 2rem;
+  --redesign-spacing-2xl: 3rem;
+  --redesign-spacing-3xl: 4rem;
+  --redesign-spacing-4xl: 6rem;
+  --redesign-spacing-5xl: 8rem;
+  
+  /* Border Radius - Modern Appearance */
+  --redesign-radius-sm: 0.25rem;
+  --redesign-radius-md: 0.375rem;
+  --redesign-radius-lg: 0.5rem;
+  --redesign-radius-xl: 0.75rem;
+  --redesign-radius-2xl: 1rem;
+  --redesign-radius-full: 9999px;
+  
+  /* Shadows - Professional Depth */
+  --redesign-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --redesign-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --redesign-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --redesign-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Transitions - Smooth Interactions */
+  --redesign-transition-fast: 150ms ease-in-out;
+  --redesign-transition-normal: 300ms ease-in-out;
+  --redesign-transition-slow: 500ms ease-in-out;
+  
+  /* Z-Index Scale - Layering */
+  --redesign-z-dropdown: 1000;
+  --redesign-z-sticky: 1020;
+  --redesign-z-fixed: 1030;
+  --redesign-z-modal-backdrop: 1040;
+  --redesign-z-modal: 1050;
+  --redesign-z-popover: 1060;
+  --redesign-z-tooltip: 1070;
+}
+
+/* Base Typography Styles */
+.redesign-font-primary {
+  font-family: var(--redesign-font-primary);
+}
+
+.redesign-font-secondary {
+  font-family: var(--redesign-font-secondary);
+}
+
+/* Heading Styles */
+.redesign-heading-1 {
+  font-size: var(--redesign-text-6xl);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--redesign-text-primary);
+  font-family: var(--redesign-font-primary);
+}
+
+.redesign-heading-2 {
+  font-size: var(--redesign-text-5xl);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--redesign-text-primary);
+  font-family: var(--redesign-font-primary);
+}
+
+.redesign-heading-3 {
+  font-size: var(--redesign-text-4xl);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--redesign-text-primary);
+  font-family: var(--redesign-font-primary);
+}
+
+.redesign-heading-4 {
+  font-size: var(--redesign-text-3xl);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--redesign-text-primary);
+  font-family: var(--redesign-font-primary);
+}
+
+.redesign-heading-5 {
+  font-size: var(--redesign-text-2xl);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--redesign-text-primary);
+  font-family: var(--redesign-font-primary);
+}
+
+.redesign-heading-6 {
+  font-size: var(--redesign-text-xl);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--redesign-text-primary);
+  font-family: var(--redesign-font-primary);
+}
+
+/* Body Text Styles */
+.redesign-body-large {
+  font-size: var(--redesign-text-lg);
+  line-height: 1.6;
+  color: var(--redesign-text-secondary);
+  font-family: var(--redesign-font-secondary);
+}
+
+.redesign-body-base {
+  font-size: var(--redesign-text-base);
+  line-height: 1.6;
+  color: var(--redesign-text-secondary);
+  font-family: var(--redesign-font-secondary);
+}
+
+.redesign-body-small {
+  font-size: var(--redesign-text-sm);
+  line-height: 1.5;
+  color: var(--redesign-text-light);
+  font-family: var(--redesign-font-secondary);
+}
+
+/* Button Styles */
+.redesign-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--redesign-spacing-md) var(--redesign-spacing-xl);
+  border-radius: var(--redesign-radius-lg);
+  font-family: var(--redesign-font-primary);
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all var(--redesign-transition-fast);
+  min-height: 44px; /* Accessibility: minimum touch target */
+}
+
+.redesign-btn-primary {
+  background: var(--redesign-blue-gradient);
+  color: var(--redesign-text-white);
+  box-shadow: var(--redesign-shadow-md);
+}
+
+.redesign-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--redesign-shadow-lg);
+}
+
+.redesign-btn-emergency {
+  background: var(--redesign-emergency-red);
+  color: var(--redesign-text-white);
+  box-shadow: var(--redesign-shadow-md);
+}
+
+.redesign-btn-emergency:hover {
+  background: var(--redesign-emergency-red-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--redesign-shadow-lg);
+}
+
+.redesign-btn-outline {
+  background: transparent;
+  color: var(--redesign-primary-blue);
+  border: 2px solid var(--redesign-primary-blue);
+}
+
+.redesign-btn-outline:hover {
+  background: var(--redesign-primary-blue);
+  color: var(--redesign-text-white);
+}
+
+.redesign-btn-large {
+  padding: var(--redesign-spacing-lg) var(--redesign-spacing-2xl);
+  font-size: var(--redesign-text-lg);
+}
+
+.redesign-btn-small {
+  padding: var(--redesign-spacing-sm) var(--redesign-spacing-lg);
+  font-size: var(--redesign-text-sm);
+  min-height: 36px;
+}
+
+/* Card Styles */
+.redesign-card {
+  background: var(--redesign-background-white);
+  border-radius: var(--redesign-radius-xl);
+  box-shadow: var(--redesign-shadow-md);
+  padding: var(--redesign-spacing-xl);
+  transition: all var(--redesign-transition-normal);
+}
+
+.redesign-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--redesign-shadow-xl);
+}
+
+/* Section Styles */
+.redesign-section {
+  padding: var(--redesign-spacing-4xl) 0;
+}
+
+.redesign-section-padding {
+  padding: var(--redesign-spacing-3xl) var(--redesign-spacing-md);
+}
+
+.redesign-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--redesign-spacing-md);
+}
+
+/* Background Gradients */
+.redesign-bg-blue-gradient {
+  background: var(--redesign-blue-gradient);
+}
+
+.redesign-bg-emergency {
+  background: var(--redesign-emergency-red);
+}
+
+.redesign-bg-light {
+  background: var(--redesign-background-light-gray);
+}
+
+/* Text Colors */
+.redesign-text-white {
+  color: var(--redesign-text-white);
+}
+
+.redesign-text-primary {
+  color: var(--redesign-text-primary);
+}
+
+.redesign-text-secondary {
+  color: var(--redesign-text-secondary);
+}
+
+.redesign-text-light {
+  color: var(--redesign-text-light);
+}
+
+/* Accessibility Improvements */
+.redesign-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.redesign-focus-visible:focus-visible {
+  outline: 2px solid var(--redesign-primary-blue);
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --redesign-primary-blue: #0000ff;
+    --redesign-emergency-red: #ff0000;
+    --redesign-text-primary: #000000;
+    --redesign-text-secondary: #000000;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,381 @@
+/* Main styles for Hospital Homepage Redesign */
+
+.hospital-homepage-redesign {
+  font-family: var(--redesign-font-primary);
+  color: var(--redesign-text-primary);
+  line-height: 1.6;
+}
+
+/* Header Styles */
+.redesign-header {
+  background: var(--redesign-background-white);
+  box-shadow: var(--redesign-shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: var(--redesign-z-sticky);
+  padding: var(--redesign-spacing-md) 0;
+}
+
+.redesign-logo img {
+  height: auto;
+  max-height: 60px;
+}
+
+.redesign-nav-desktop {
+  display: none;
+  gap: var(--redesign-spacing-xl);
+}
+
+.redesign-nav-link {
+  color: var(--redesign-text-primary);
+  text-decoration: none;
+  font-weight: 500;
+  padding: var(--redesign-spacing-sm) var(--redesign-spacing-md);
+  border-radius: var(--redesign-radius-md);
+  transition: all var(--redesign-transition-fast);
+}
+
+.redesign-nav-link:hover,
+.redesign-nav-link.active {
+  color: var(--redesign-primary-blue);
+  background: var(--redesign-light-blue);
+}
+
+.redesign-header-cta {
+  display: flex;
+  align-items: center;
+  gap: var(--redesign-spacing-base);
+}
+
+.redesign-btn-sm {
+  padding: var(--redesign-spacing-sm) var(--redesign-spacing-base);
+  font-size: var(--redesign-font-size-sm);
+}
+
+/* Hero Section Styles */
+.redesign-hero {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+}
+
+.redesign-hero-grid {
+  align-items: center;
+}
+
+.redesign-hero-content h1 {
+  margin-bottom: var(--redesign-spacing-md);
+}
+
+.redesign-hero-content h2 {
+  margin-bottom: var(--redesign-spacing-lg);
+  font-weight: 400;
+}
+
+.redesign-hero-content p {
+  margin-bottom: var(--redesign-spacing-xl);
+  max-width: 600px;
+}
+
+.redesign-hero-image img {
+  box-shadow: var(--redesign-shadow-xl);
+}
+
+/* About Section Styles */
+.redesign-about-content h2 {
+  margin-bottom: var(--redesign-spacing-md);
+}
+
+.redesign-about-content h3 {
+  margin-bottom: var(--redesign-spacing-lg);
+}
+
+.redesign-about-content p {
+  margin-bottom: var(--redesign-spacing-xl);
+}
+
+.redesign-specializations {
+  margin-bottom: var(--redesign-spacing-xl);
+}
+
+.redesign-specializations h4 {
+  margin-bottom: var(--redesign-spacing-md);
+  color: var(--redesign-primary-blue);
+}
+
+.redesign-specializations ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--redesign-spacing-sm);
+}
+
+.redesign-specializations li {
+  padding: var(--redesign-spacing-sm);
+  background: var(--redesign-background-white);
+  border-radius: var(--redesign-radius-md);
+  border-left: 4px solid var(--redesign-primary-blue);
+}
+
+/* Quick Access Section Styles */
+.redesign-quick-access {
+  background: var(--redesign-background-light);
+  padding: var(--redesign-spacing-3xl) 0;
+}
+
+.redesign-quick-access-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--redesign-spacing-2xl);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.redesign-quick-access-card {
+  background: var(--redesign-background-white);
+  padding: var(--redesign-spacing-2xl);
+  border-radius: var(--redesign-radius-xl);
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform var(--redesign-transition-fast);
+}
+
+.redesign-quick-access-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.redesign-quick-access-icon {
+  font-size: 3rem;
+  margin-bottom: var(--redesign-spacing-lg);
+}
+
+.redesign-quick-access-card h3 {
+  margin-bottom: var(--redesign-spacing-base);
+  color: var(--redesign-primary-blue);
+}
+
+.redesign-quick-access-card p {
+  margin-bottom: var(--redesign-spacing-xl);
+  color: var(--redesign-text-secondary);
+}
+
+.redesign-quick-access-card .redesign-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Services Section Styles */
+.redesign-services-grid .redesign-card {
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.redesign-services-grid .redesign-card h3 {
+  margin-bottom: var(--redesign-spacing-md);
+  color: var(--redesign-primary-blue);
+}
+
+.redesign-services-grid .redesign-card p {
+  margin-bottom: var(--redesign-spacing-lg);
+  flex-grow: 1;
+}
+
+.redesign-services-grid .redesign-card ul {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+}
+
+.redesign-services-grid .redesign-card li {
+  padding: var(--redesign-spacing-xs) 0;
+  border-bottom: 1px solid var(--redesign-background-gray);
+  position: relative;
+  padding-left: var(--redesign-spacing-lg);
+}
+
+.redesign-services-grid .redesign-card li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--redesign-primary-blue);
+  font-weight: bold;
+}
+
+.redesign-services-grid .redesign-card li:last-child {
+  border-bottom: none;
+}
+
+/* Footer Styles */
+.redesign-footer {
+  background: var(--redesign-background-dark);
+  color: var(--redesign-text-white);
+  padding: var(--redesign-spacing-2xl) 0 var(--redesign-spacing-lg) 0;
+}
+
+.redesign-footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--redesign-spacing-xl);
+  margin-bottom: var(--redesign-spacing-xl);
+}
+
+.redesign-footer-section h4 {
+  margin-bottom: var(--redesign-spacing-base);
+  color: var(--redesign-secondary-blue);
+}
+
+.redesign-footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.redesign-footer-links li {
+  margin-bottom: var(--redesign-spacing-sm);
+}
+
+.redesign-footer-link {
+  background: none;
+  border: none;
+  color: var(--redesign-text-white);
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: var(--redesign-font-size-base);
+  transition: color var(--redesign-transition-fast);
+}
+
+.redesign-footer-link:hover {
+  color: var(--redesign-secondary-blue);
+}
+
+.redesign-footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: var(--redesign-spacing-lg);
+  text-align: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767px) {
+  .redesign-header-cta {
+    flex-direction: column;
+    gap: var(--redesign-spacing-sm);
+  }
+  
+  .redesign-header-cta .redesign-btn {
+    font-size: var(--redesign-font-size-xs);
+    padding: var(--redesign-spacing-xs) var(--redesign-spacing-sm);
+  }
+}
+
+@media (min-width: 768px) {
+  .redesign-nav-desktop {
+    display: flex;
+  }
+
+  .redesign-hero-content h1 {
+    font-size: var(--redesign-text-5xl);
+  }
+
+  .redesign-specializations ul {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .redesign-hero-content h1 {
+    font-size: var(--redesign-text-6xl);
+  }
+
+  .redesign-specializations ul {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Floating Staff Login Button */
+.redesign-floating-staff-btn {
+  position: fixed;
+  bottom: var(--redesign-spacing-xl);
+  right: var(--redesign-spacing-xl);
+  background: var(--redesign-primary-blue);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: var(--redesign-spacing-base) var(--redesign-spacing-lg);
+  box-shadow: 0 4px 12px rgba(67, 56, 202, 0.3);
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: var(--redesign-spacing-sm);
+  font-weight: 600;
+  font-size: var(--redesign-font-size-sm);
+  transition: all var(--redesign-transition-fast);
+}
+
+.redesign-floating-staff-btn:hover {
+  background: var(--redesign-secondary-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(67, 56, 202, 0.4);
+}
+
+.redesign-floating-btn-icon {
+  font-size: var(--redesign-font-size-lg);
+}
+
+.redesign-floating-btn-text {
+  font-size: var(--redesign-font-size-sm);
+}
+
+@media (max-width: 768px) {
+  .redesign-floating-staff-btn {
+    bottom: var(--redesign-spacing-lg);
+    right: var(--redesign-spacing-lg);
+    padding: var(--redesign-spacing-sm) var(--redesign-spacing-base);
+  }
+  
+  .redesign-floating-btn-text {
+    display: none;
+  }
+}
+
+/* Focus and Accessibility */
+.redesign-focus-visible:focus-visible {
+  outline: 2px solid var(--redesign-primary-blue);
+  outline-offset: 2px;
+}
+
+/* Loading States */
+.redesign-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Animation Classes */
+.redesign-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Error States */
+.redesign-error {
+  color: var(--redesign-emergency-red);
+  background: var(--redesign-emergency-red-light);
+  padding: var(--redesign-spacing-md);
+  border-radius: var(--redesign-radius-md);
+  border: 1px solid var(--redesign-emergency-red);
+}

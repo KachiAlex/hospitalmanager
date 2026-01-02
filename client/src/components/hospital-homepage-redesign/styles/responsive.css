@@ -1,0 +1,415 @@
+/* Responsive Design Styles for Hospital Homepage Redesign */
+
+/* Mobile-First Approach - Base styles for mobile devices */
+
+/* Container and Layout */
+.redesign-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--redesign-spacing-md);
+}
+
+/* Grid System */
+.redesign-grid {
+  display: grid;
+  gap: var(--redesign-spacing-lg);
+}
+
+.redesign-grid-1 {
+  grid-template-columns: 1fr;
+}
+
+.redesign-grid-2 {
+  grid-template-columns: 1fr;
+}
+
+.redesign-grid-3 {
+  grid-template-columns: 1fr;
+}
+
+/* Flexbox Utilities */
+.redesign-flex {
+  display: flex;
+}
+
+.redesign-flex-col {
+  flex-direction: column;
+}
+
+.redesign-flex-wrap {
+  flex-wrap: wrap;
+}
+
+.redesign-items-center {
+  align-items: center;
+}
+
+.redesign-justify-center {
+  justify-content: center;
+}
+
+.redesign-justify-between {
+  justify-content: space-between;
+}
+
+/* Typography Responsive Scaling */
+.redesign-heading-1 {
+  font-size: var(--redesign-text-4xl); /* Smaller on mobile */
+}
+
+.redesign-heading-2 {
+  font-size: var(--redesign-text-3xl);
+}
+
+.redesign-heading-3 {
+  font-size: var(--redesign-text-2xl);
+}
+
+.redesign-heading-4 {
+  font-size: var(--redesign-text-xl);
+}
+
+/* Section Spacing - Mobile */
+.redesign-section {
+  padding: var(--redesign-spacing-2xl) 0;
+}
+
+.redesign-section-padding {
+  padding: var(--redesign-spacing-xl) var(--redesign-spacing-md);
+}
+
+/* Button Responsive Sizing */
+.redesign-btn {
+  width: 100%; /* Full width on mobile */
+  min-height: 48px; /* Larger touch targets on mobile */
+  font-size: var(--redesign-text-base);
+}
+
+/* Card Responsive Spacing */
+.redesign-card {
+  padding: var(--redesign-spacing-lg);
+  margin-bottom: var(--redesign-spacing-lg);
+}
+
+/* Image Responsive */
+.redesign-img-responsive {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Navigation - Mobile First */
+.redesign-nav-mobile {
+  display: block;
+}
+
+.redesign-nav-desktop {
+  display: none;
+}
+
+/* Hero Section - Mobile */
+.redesign-hero {
+  text-align: center;
+  padding: var(--redesign-spacing-2xl) 0;
+}
+
+.redesign-hero-content {
+  order: 2;
+}
+
+.redesign-hero-image {
+  order: 1;
+  margin-bottom: var(--redesign-spacing-xl);
+}
+
+/* Services Section - Mobile */
+.redesign-services-grid {
+  gap: var(--redesign-spacing-lg);
+}
+
+/* Testimonials - Mobile */
+.redesign-testimonials-grid {
+  gap: var(--redesign-spacing-lg);
+}
+
+/* Contact Section - Mobile */
+.redesign-contact-grid {
+  gap: var(--redesign-spacing-lg);
+  text-align: center;
+}
+
+/* Tablet Breakpoint - 768px and up */
+@media (min-width: 768px) {
+  /* Container */
+  .redesign-container {
+    padding: 0 var(--redesign-spacing-xl);
+  }
+
+  /* Grid System - Tablet */
+  .redesign-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Typography - Tablet */
+  .redesign-heading-1 {
+    font-size: var(--redesign-text-5xl);
+  }
+
+  .redesign-heading-2 {
+    font-size: var(--redesign-text-4xl);
+  }
+
+  .redesign-heading-3 {
+    font-size: var(--redesign-text-3xl);
+  }
+
+  /* Section Spacing - Tablet */
+  .redesign-section {
+    padding: var(--redesign-spacing-3xl) 0;
+  }
+
+  .redesign-section-padding {
+    padding: var(--redesign-spacing-2xl) var(--redesign-spacing-xl);
+  }
+
+  /* Button - Tablet */
+  .redesign-btn {
+    width: auto; /* Auto width on tablet */
+    min-width: 160px;
+  }
+
+  /* Card - Tablet */
+  .redesign-card {
+    padding: var(--redesign-spacing-xl);
+  }
+
+  /* Hero Section - Tablet */
+  .redesign-hero {
+    text-align: left;
+  }
+
+  .redesign-hero-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: var(--redesign-spacing-2xl);
+  }
+
+  .redesign-hero-content {
+    order: 1;
+  }
+
+  .redesign-hero-image {
+    order: 2;
+    margin-bottom: 0;
+  }
+
+  /* Services Section - Tablet */
+  .redesign-services-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--redesign-spacing-xl);
+  }
+
+  /* Testimonials - Tablet */
+  .redesign-testimonials-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--redesign-spacing-xl);
+  }
+
+  /* Contact Section - Tablet */
+  .redesign-contact-grid {
+    grid-template-columns: repeat(2, 1fr);
+    text-align: left;
+  }
+}
+
+/* Desktop Breakpoint - 1024px and up */
+@media (min-width: 1024px) {
+  /* Container */
+  .redesign-container {
+    padding: 0 var(--redesign-spacing-2xl);
+  }
+
+  /* Grid System - Desktop */
+  .redesign-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Typography - Desktop */
+  .redesign-heading-1 {
+    font-size: var(--redesign-text-6xl);
+  }
+
+  .redesign-heading-2 {
+    font-size: var(--redesign-text-5xl);
+  }
+
+  .redesign-heading-3 {
+    font-size: var(--redesign-text-4xl);
+  }
+
+  /* Section Spacing - Desktop */
+  .redesign-section {
+    padding: var(--redesign-spacing-4xl) 0;
+  }
+
+  .redesign-section-padding {
+    padding: var(--redesign-spacing-3xl) var(--redesign-spacing-2xl);
+  }
+
+  /* Navigation - Desktop */
+  .redesign-nav-mobile {
+    display: none;
+  }
+
+  .redesign-nav-desktop {
+    display: flex;
+  }
+
+  /* Hero Section - Desktop */
+  .redesign-hero {
+    padding: var(--redesign-spacing-4xl) 0;
+  }
+
+  .redesign-hero-grid {
+    gap: var(--redesign-spacing-3xl);
+  }
+
+  /* Services Section - Desktop */
+  .redesign-services-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--redesign-spacing-2xl);
+  }
+
+  /* Testimonials - Desktop */
+  .redesign-testimonials-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--redesign-spacing-2xl);
+  }
+
+  /* About Section - Desktop */
+  .redesign-about-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: var(--redesign-spacing-3xl);
+  }
+
+  /* Why Choose Us - Desktop */
+  .redesign-why-choose-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: var(--redesign-spacing-3xl);
+  }
+
+  /* Booking Section - Desktop */
+  .redesign-booking-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: var(--redesign-spacing-3xl);
+  }
+
+  /* Contact Section - Desktop */
+  .redesign-contact-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Large Desktop Breakpoint - 1280px and up */
+@media (min-width: 1280px) {
+  /* Container */
+  .redesign-container {
+    max-width: 1280px;
+  }
+
+  /* Enhanced spacing for large screens */
+  .redesign-section {
+    padding: var(--redesign-spacing-5xl) 0;
+  }
+
+  /* Typography - Large Desktop */
+  .redesign-heading-1 {
+    font-size: 4rem; /* Even larger on very large screens */
+  }
+}
+
+/* Extra Large Desktop Breakpoint - 1536px and up */
+@media (min-width: 1536px) {
+  /* Container */
+  .redesign-container {
+    max-width: 1400px;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets for touch devices */
+  .redesign-btn {
+    min-height: 48px;
+    padding: var(--redesign-spacing-lg) var(--redesign-spacing-xl);
+  }
+
+  /* Remove hover effects on touch devices */
+  .redesign-btn:hover,
+  .redesign-card:hover {
+    transform: none;
+  }
+
+  /* Larger tap targets for navigation */
+  .redesign-nav-link {
+    padding: var(--redesign-spacing-lg);
+    min-height: 48px;
+  }
+}
+
+/* High DPI Display Support */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Ensure images look crisp on high DPI displays */
+  .redesign-img-responsive {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Print Styles */
+@media print {
+  /* Hide interactive elements when printing */
+  .redesign-btn,
+  .redesign-nav-mobile,
+  .redesign-nav-desktop {
+    display: none !important;
+  }
+
+  /* Ensure good contrast for printing */
+  .redesign-text-white {
+    color: var(--redesign-text-primary) !important;
+  }
+
+  /* Remove backgrounds for printing */
+  .redesign-bg-blue-gradient,
+  .redesign-bg-emergency {
+    background: none !important;
+  }
+
+  /* Optimize spacing for print */
+  .redesign-section {
+    padding: var(--redesign-spacing-lg) 0;
+  }
+}
+
+/* Landscape Orientation on Mobile */
+@media (max-width: 767px) and (orientation: landscape) {
+  /* Reduce vertical spacing in landscape mode */
+  .redesign-section {
+    padding: var(--redesign-spacing-lg) 0;
+  }
+
+  .redesign-hero {
+    padding: var(--redesign-spacing-lg) 0;
+  }
+}
+
+/* Dark Mode Support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  /* Dark mode variables would go here */
+  /* Currently maintaining light theme for medical professionalism */
+}

@@ -21,8 +21,24 @@ const LoadingSpinner = ({
     border: `${sizeClasses[size].borderWidth} solid #f3f4f6`,
     borderTop: `${sizeClasses[size].borderWidth} solid ${color}`,
     borderRadius: '50%',
-    animation: 'spin 1s linear infinite'
+    animation: 'loadingSpinnerRotate 1s linear infinite'
   };
+
+  // Inject CSS animation if not already present
+  React.useEffect(() => {
+    const styleId = 'loading-spinner-styles';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        @keyframes loadingSpinnerRotate {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
 
   return (
     <div className={`loading-spinner ${className}`} style={{
@@ -44,13 +60,6 @@ const LoadingSpinner = ({
           {text}
         </p>
       )}
-      
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 };

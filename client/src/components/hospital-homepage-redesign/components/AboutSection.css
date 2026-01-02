@@ -1,0 +1,216 @@
+/* About Section Styles */
+.redesign-about {
+  background-color: var(--redesign-background-white);
+  padding: var(--redesign-spacing-4xl) 0;
+}
+
+.redesign-about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--redesign-spacing-3xl);
+  align-items: center;
+}
+
+.redesign-about-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.redesign-about-img {
+  border-radius: var(--redesign-radius-xl);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.redesign-about-img:hover {
+  transform: scale(1.02);
+}
+
+.redesign-about-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--redesign-spacing-lg);
+  max-width: 600px;
+}
+
+.redesign-about-heading {
+  font-size: var(--redesign-font-size-3xl);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--redesign-text-primary);
+}
+
+.redesign-about-subheading {
+  font-size: var(--redesign-font-size-xl);
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 0;
+  color: var(--redesign-secondary-blue);
+}
+
+.redesign-about-description {
+  font-size: var(--redesign-font-size-lg);
+  line-height: 1.6;
+  margin: 0;
+  color: var(--redesign-text-primary);
+  opacity: 0.9;
+}
+
+.redesign-specializations {
+  background: rgba(67, 56, 202, 0.05);
+  padding: var(--redesign-spacing-lg);
+  border-radius: var(--redesign-radius-lg);
+  border-left: 4px solid var(--redesign-primary-blue);
+}
+
+.redesign-specializations-title {
+  font-size: var(--redesign-font-size-lg);
+  font-weight: 600;
+  margin: 0 0 var(--redesign-spacing-base) 0;
+  color: var(--redesign-primary-blue);
+}
+
+.redesign-specializations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--redesign-spacing-sm);
+}
+
+.redesign-specialization-item {
+  display: flex;
+  align-items: center;
+  gap: var(--redesign-spacing-sm);
+  font-size: var(--redesign-font-size-base);
+  color: var(--redesign-text-primary);
+}
+
+.redesign-specialization-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: var(--redesign-primary-blue);
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.redesign-about-cta {
+  align-self: flex-start;
+  padding: var(--redesign-spacing-base) var(--redesign-spacing-xl);
+  font-size: var(--redesign-font-size-base);
+  font-weight: 600;
+  border-radius: var(--redesign-radius-lg);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(67, 56, 202, 0.2);
+}
+
+.redesign-about-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(67, 56, 202, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .redesign-about {
+    padding: var(--redesign-spacing-3xl) 0;
+  }
+
+  .redesign-about-grid {
+    grid-template-columns: 1fr;
+    gap: var(--redesign-spacing-2xl);
+    text-align: center;
+  }
+
+  .redesign-about-content {
+    order: 2;
+    max-width: 100%;
+    align-items: center;
+  }
+
+  .redesign-about-image {
+    order: 1;
+  }
+
+  .redesign-about-heading {
+    font-size: var(--redesign-font-size-2xl);
+  }
+
+  .redesign-about-subheading {
+    font-size: var(--redesign-font-size-lg);
+  }
+
+  .redesign-about-description {
+    font-size: var(--redesign-font-size-base);
+  }
+
+  .redesign-specializations-list {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+
+  .redesign-about-cta {
+    align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .redesign-about {
+    padding: var(--redesign-spacing-2xl) 0;
+  }
+
+  .redesign-about-heading {
+    font-size: var(--redesign-font-size-xl);
+  }
+
+  .redesign-about-subheading {
+    font-size: var(--redesign-font-size-base);
+  }
+
+  .redesign-about-grid {
+    gap: var(--redesign-spacing-xl);
+  }
+
+  .redesign-specializations {
+    padding: var(--redesign-spacing-base);
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .redesign-about-img,
+  .redesign-about-cta {
+    transition: none;
+  }
+
+  .redesign-about-img:hover {
+    transform: none;
+  }
+
+  .redesign-about-cta:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .redesign-specializations {
+    background: rgba(67, 56, 202, 0.1);
+    border-left-width: 6px;
+  }
+
+  .redesign-specialization-icon {
+    background: var(--redesign-text-primary);
+  }
+}
