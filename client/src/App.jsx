@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import AdminDashboard from './AdminDashboard';
 import StaffDashboard from './StaffDashboard';
 import './App.css';
@@ -83,6 +84,12 @@ function App() {
     const password = loginForm.password.trim();
     const role = loginForm.role.trim();
     
+    // Validate input fields
+    if (!email || !password) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    
     // Find matching staff account
     const matchingAccount = staffAccounts.find(account => 
       account.email === email && 
@@ -91,11 +98,12 @@ function App() {
     );
     
     if (matchingAccount) {
+      toast.success(`Welcome back, ${matchingAccount.name}!`);
       setCurrentUser(matchingAccount);
       setShowStaffLogin(false);
       setLoginForm({ email: '', password: '', role: 'doctor' });
     } else {
-      alert(`Demo Login - Available accounts:\n\nAdmin: admin@thappy.com / admin123\nDoctor: doctor@thappy.com / doctor123\nNurse: nurse@thappy.com / nurse123\nReceptionist: receptionist@thappy.com / reception123\n\nMake sure to select the correct role!`);
+      toast.error('Invalid credentials. Please check your email, password, and role selection.');
     }
   };
 
@@ -115,6 +123,28 @@ function App() {
   // MOBILE-FIRST RESPONSIVE HOSPITAL WEBSITE
   return (
     <div className="app-container">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            style: {
+              background: '#10b981',
+            },
+          },
+          error: {
+            duration: 5000,
+            style: {
+              background: '#ef4444',
+            },
+          },
+        }}
+      />
       {/* Staff Login Modal */}
       {showStaffLogin && (
         <div className="modal-overlay">

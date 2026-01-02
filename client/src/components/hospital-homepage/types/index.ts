@@ -11,6 +11,7 @@ export interface HeaderProps {
   navigationItems: NavigationItem[];
   onBookAppointment: () => void;
   onStaffLogin: () => void;
+  onNavigate?: (item: NavigationItem) => void;
 }
 
 export interface HeroSectionProps {
@@ -48,8 +49,9 @@ export interface ContactInfo {
   mapEmbedUrl?: string;
 }
 
-export interface ContactSectionProps {
+interface ContactSectionProps {
   contactInfo: ContactInfo;
+  id?: string;
 }
 
 export interface HospitalInfo {

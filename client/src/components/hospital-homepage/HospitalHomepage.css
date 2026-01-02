@@ -47,18 +47,27 @@
 }
 
 /* Skip link for accessibility */
-.skip-link {
+.skip-to-main {
   position: absolute;
   top: -40px;
   left: 6px;
   background: var(--primary-color);
   color: var(--medical-white);
-  padding: 8px;
+  padding: 8px 12px;
   text-decoration: none;
   border-radius: 0 0 4px 4px;
   z-index: 1000;
+  font-weight: 600;
+  transition: top 0.3s ease;
 }
 
-.skip-link:focus {
+.skip-to-main:focus {
   top: 0;
+  outline: 2px solid var(--medical-white);
+  outline-offset: 2px;
+}
+
+/* Main content focus styles */
+main:focus {
+  outline: none;
 }

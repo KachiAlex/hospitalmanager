@@ -3,9 +3,9 @@ import { ContactSectionProps } from '../types';
 import { getIcon } from '../utils/iconMap';
 import './ContactSection.css';
 
-const ContactSection: React.FC<ContactSectionProps> = ({ contactInfo }) => {
+const ContactSection: React.FC<ContactSectionProps> = ({ contactInfo, id }) => {
   return (
-    <section className="hospital-homepage contact-section section">
+    <section className="hospital-homepage contact-section section" id={id}>
       <div className="container">
         <div className="section-header">
           <h2 className="section-title">Get In Touch</h2>

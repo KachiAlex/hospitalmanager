@@ -7,7 +7,8 @@ const Header: React.FC<HeaderProps> = ({
   logo,
   navigationItems,
   onBookAppointment,
-  onStaffLogin
+  onStaffLogin,
+  onNavigate
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -33,6 +34,12 @@ const Header: React.FC<HeaderProps> = ({
                     href={item.href} 
                     className={`nav-link ${item.active ? 'active' : ''}`}
                     aria-current={item.active ? 'page' : undefined}
+                    onClick={(e) => {
+                      if (onNavigate) {
+                        e.preventDefault();
+                        onNavigate(item);
+                      }
+                    }}
                   >
                     {item.label}
                   </a>
@@ -82,7 +89,13 @@ const Header: React.FC<HeaderProps> = ({
                   href={item.href} 
                   className={`nav-link ${item.active ? 'active' : ''}`}
                   aria-current={item.active ? 'page' : undefined}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={(e) => {
+                    setIsMobileMenuOpen(false);
+                    if (onNavigate) {
+                      e.preventDefault();
+                      onNavigate(item);
+                    }
+                  }}
                 >
                   {item.label}
                 </a>

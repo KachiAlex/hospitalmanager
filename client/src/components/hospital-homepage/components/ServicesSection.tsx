@@ -5,6 +5,7 @@ import './ServicesSection.css';
 
 interface ServicesSectionProps {
   services: Service[];
+  id?: string;
 }
 
 const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
@@ -19,9 +20,9 @@ const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
   );
 };
 
-const ServicesSection: React.FC<ServicesSectionProps> = ({ services }) => {
+const ServicesSection: React.FC<ServicesSectionProps> = ({ services, id }) => {
   return (
-    <section className="hospital-homepage services-section section">
+    <section className="hospital-homepage services-section section" id={id}>
       <div className="container">
         <div className="section-header">
           <h2 className="section-title">Our Medical Services</h2>

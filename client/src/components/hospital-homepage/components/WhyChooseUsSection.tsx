@@ -5,6 +5,7 @@ import './WhyChooseUsSection.css';
 
 interface WhyChooseUsSectionProps {
   features: Feature[];
+  id?: string;
 }
 
 const FeaturePoint: React.FC<{ feature: Feature }> = ({ feature }) => {
@@ -21,9 +22,9 @@ const FeaturePoint: React.FC<{ feature: Feature }> = ({ feature }) => {
   );
 };
 
-const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ features }) => {
+const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ features, id }) => {
   return (
-    <section className="hospital-homepage why-choose-us-section section">
+    <section className="hospital-homepage why-choose-us-section section" id={id}>
       <div className="container">
         <div className="section-header">
           <h2 className="section-title">Why Choose CareWell Medical Center?</h2>

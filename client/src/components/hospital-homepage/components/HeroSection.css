@@ -22,6 +22,72 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.hero-image.loading {
+  opacity: 0;
+}
+
+.hero-image.loaded {
+  opacity: 1;
+}
+
+.hero-image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--medical-blue-100) 0%, var(--medical-green-100) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--medical-blue-200);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hero-image-fallback {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--medical-blue-200) 0%, var(--medical-green-200) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fallback-content {
+  text-align: center;
+  color: var(--primary-color);
+}
+
+.fallback-content svg {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+.fallback-content p {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  opacity: 0.8;
 }
 
 .hero-overlay {
