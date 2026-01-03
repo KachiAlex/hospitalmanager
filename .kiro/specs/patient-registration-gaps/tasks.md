@@ -6,7 +6,7 @@ This implementation plan addresses the critical functional gaps in the patient r
 
 ## Tasks
 
-- [ ] 1. Database Schema Extensions
+- [x] 1. Database Schema Extensions
   - Extend existing patients table with new columns (account_type, middle_name, record_number, created_by)
   - Create next_of_kin table with foreign key relationships
   - Create family_members table for family account relationships
@@ -15,7 +15,7 @@ This implementation plan addresses the critical functional gaps in the patient r
   - Add appropriate indexes and constraints for data integrity
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-- [ ] 1.1 Write property tests for database schema integrity
+- [x] 1.1 Write property tests for database schema integrity
   - **Property 10: Database Schema Integrity**
   - **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5, 3.6**
 

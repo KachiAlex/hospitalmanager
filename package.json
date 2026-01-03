@@ -6,7 +6,8 @@
     "start": "node server/app.js",
     "start:backend": "node start-backend.js",
     "dev": "nodemon server/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,9 @@
     "autoprefixer": "^10.4.23",
     "nodemon": "^3.1.11",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "jest": "^30.2.0",
+    "fast-check": "^4.5.3",
+    "@types/jest": "^30.0.0"
   }
 }

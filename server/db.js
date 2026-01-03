@@ -6,16 +6,59 @@ const db = new Database(dbPath);
 
 function init() {
   db.pragma('foreign_keys = ON');
+  
+  // First, check if we need to migrate the existing patients table
+  const tableInfo = db.prepare("PRAGMA table_info(patients)").all();
+  const columnNames = tableInfo.map(col => col.name);
+  const needsMigration = !columnNames.includes('middle_name') || !columnNames.includes('account_type');
+  
+  if (needsMigration && tableInfo.length > 0) {
+    // Migrate existing patients table
+    console.log('Migrating existing patients table...');
+    db.exec(`
+      -- Create new patients table with all columns
+      CREATE TABLE IF NOT EXISTS patients_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        first_name TEXT NOT NULL,
+        middle_name TEXT,
+        last_name TEXT NOT NULL,
+        gender TEXT CHECK(gender IN ('male','female','other')) NOT NULL,
+        date_of_birth TEXT NOT NULL,
+        contact_info TEXT,
+        account_type TEXT CHECK(account_type IN ('personal','family')) NOT NULL DEFAULT 'personal',
+        record_number TEXT UNIQUE,
+        created_by INTEGER,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      -- Copy existing data
+      INSERT INTO patients_new (id, first_name, last_name, gender, date_of_birth, contact_info, created_at)
+      SELECT id, first_name, last_name, gender, date_of_birth, contact_info, created_at FROM patients;
+      
+      -- Drop old table and rename new one
+      DROP TABLE patients;
+      ALTER TABLE patients_new RENAME TO patients;
+    `);
+  } else {
+    // Create patients table normally
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS patients (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        first_name TEXT NOT NULL,
+        middle_name TEXT,
+        last_name TEXT NOT NULL,
+        gender TEXT CHECK(gender IN ('male','female','other')) NOT NULL,
+        date_of_birth TEXT NOT NULL,
+        contact_info TEXT,
+        account_type TEXT CHECK(account_type IN ('personal','family')) NOT NULL DEFAULT 'personal',
+        record_number TEXT UNIQUE,
+        created_by INTEGER,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+  }
+  
   db.exec(`
-    CREATE TABLE IF NOT EXISTS patients (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      first_name TEXT NOT NULL,
-      last_name TEXT NOT NULL,
-      gender TEXT CHECK(gender IN ('male','female','other')) NOT NULL,
-      date_of_birth TEXT NOT NULL,
-      contact_info TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP
-    );
 
     CREATE TABLE IF NOT EXISTS doctors (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -82,6 +125,69 @@ function init() {
       status TEXT NOT NULL DEFAULT 'active',
       notes TEXT
     );
+
+    CREATE TABLE IF NOT EXISTS next_of_kin (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
+      relationship TEXT NOT NULL,
+      phone TEXT,
+      email TEXT,
+      address TEXT,
+      is_emergency_contact BOOLEAN DEFAULT 1,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS family_members (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      primary_patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+      member_patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+      relationship TEXT NOT NULL,
+      is_primary BOOLEAN DEFAULT 0,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(primary_patient_id, member_patient_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS patient_vitals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+      height REAL,
+      weight REAL,
+      blood_pressure_systolic INTEGER,
+      blood_pressure_diastolic INTEGER,
+      heart_rate INTEGER,
+      temperature REAL,
+      respiratory_rate INTEGER,
+      oxygen_saturation INTEGER,
+      recorded_by INTEGER,
+      recorded_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS registration_audit (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      patient_id INTEGER REFERENCES patients(id),
+      action TEXT NOT NULL,
+      staff_id INTEGER NOT NULL,
+      staff_name TEXT NOT NULL,
+      details TEXT,
+      ip_address TEXT,
+      user_agent TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Create indexes for better query performance
+    CREATE INDEX IF NOT EXISTS idx_patients_record_number ON patients(record_number);
+    CREATE INDEX IF NOT EXISTS idx_patients_created_by ON patients(created_by);
+    CREATE INDEX IF NOT EXISTS idx_patients_account_type ON patients(account_type);
+    CREATE INDEX IF NOT EXISTS idx_next_of_kin_patient_id ON next_of_kin(patient_id);
+    CREATE INDEX IF NOT EXISTS idx_family_members_primary ON family_members(primary_patient_id);
+    CREATE INDEX IF NOT EXISTS idx_family_members_member ON family_members(member_patient_id);
+    CREATE INDEX IF NOT EXISTS idx_patient_vitals_patient_id ON patient_vitals(patient_id);
+    CREATE INDEX IF NOT EXISTS idx_patient_vitals_recorded_at ON patient_vitals(recorded_at);
+    CREATE INDEX IF NOT EXISTS idx_registration_audit_patient_id ON registration_audit(patient_id);
+    CREATE INDEX IF NOT EXISTS idx_registration_audit_staff_id ON registration_audit(staff_id);
+    CREATE INDEX IF NOT EXISTS idx_registration_audit_created_at ON registration_audit(created_at);
   `);
 
   const bedCount = db.prepare('SELECT COUNT(*) as count FROM beds').get().count;
