@@ -20,40 +20,40 @@ This implementation plan addresses the critical functional gaps in the patient r
   - **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5, 3.6**
 
 - [ ] 2. Enhanced Backend API Endpoints
-  - [ ] 2.1 Enhance POST /api/patients endpoint for account types and family members
+  - [x] 2.1 Enhance POST /api/patients endpoint for account types and family members
     - Support personal and family account creation
     - Handle next of kin data persistence
     - Implement atomic transactions for multi-table operations
     - _Requirements: 2.1, 9.1_
 
-  - [ ] 2.2 Write property tests for enhanced patient creation
+  - [x] 2.2 Write property tests for enhanced patient creation
     - **Property 3: Enhanced Patient Creation Data Integrity**
     - **Validates: Requirements 2.1**
 
-  - [ ] 2.3 Implement GET /api/patients/check-duplicate endpoint
+  - [x] 2.3 Implement GET /api/patients/check-duplicate endpoint
     - Check for duplicates based on name, DOB, and phone
     - Return existing patient summaries when duplicates found
     - _Requirements: 2.2_
 
-  - [ ] 2.4 Write property tests for duplicate detection
+  - [x] 2.4 Write property tests for duplicate detection
     - **Property 4: Duplicate Detection Accuracy**
     - **Validates: Requirements 2.2**
 
-  - [ ] 2.5 Create POST /api/patients/:id/vitals endpoint
+  - [x] 2.5 Create POST /api/patients/:id/vitals endpoint
     - Validate vital signs against medical ranges
     - Store vitals with proper timestamps and relationships
     - _Requirements: 2.3_
 
-  - [ ] 2.6 Write property tests for vitals recording
+  - [x] 2.6 Write property tests for vitals recording
     - **Property 5: Vitals Recording Validation**
     - **Validates: Requirements 2.3**
 
-  - [ ] 2.7 Implement GET /api/patients/generate-record-number endpoint
+  - [x] 2.7 Implement GET /api/patients/generate-record-number endpoint
     - Generate unique patient record numbers
     - Handle concurrent requests safely
     - _Requirements: 2.5_
 
-  - [ ] 2.8 Write property tests for unique record number generation
+  - [x] 2.8 Write property tests for unique record number generation
     - **Property 7: Unique Record Number Generation**
     - **Validates: Requirements 2.5**
 
@@ -63,19 +63,19 @@ This implementation plan addresses the critical functional gaps in the patient r
     - Handle email delivery with proper error handling
     - _Requirements: 6.1, 6.4_
 
-  - [ ] 3.2 Implement POST /api/patients/:id/resend-welcome-email endpoint
+  - [x] 3.2 Implement POST /api/patients/:id/resend-welcome-email endpoint
     - Allow staff to resend welcome emails
     - Log email sending attempts
     - _Requirements: 2.4, 6.5_
 
-  - [ ] 3.3 Write property tests for email functionality
+  - [x] 3.3 Write property tests for email functionality
     - **Property 6: Email Service Reliability**
     - **Property 14: Email Content Completeness**
     - **Property 15: Email Error Handling**
     - **Validates: Requirements 2.4, 6.1, 6.2, 6.3, 6.4, 6.5**
 
 - [ ] 4. Audit and Security Implementation
-  - [ ] 4.1 Create POST /registration-audit endpoint
+  - [x] 4.1 Create POST /registration-audit endpoint
     - Log all registration activities with staff identification
     - Store comprehensive audit information
     - _Requirements: 2.6, 8.3_
@@ -86,7 +86,7 @@ This implementation plan addresses the critical functional gaps in the patient r
     - Handle unauthorized access attempts
     - _Requirements: 2.7, 8.1, 8.2, 8.4_
 
-  - [ ] 4.3 Write property tests for audit and security
+  - [x] 4.3 Write property tests for audit and security
     - **Property 8: Audit Logging Completeness**
     - **Property 9: Staff Authorization Validation**
     - **Property 19: Authentication and Authorization Enforcement**

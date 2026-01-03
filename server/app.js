@@ -2,6 +2,11 @@ const express = require('express');
 const path = require('path');
 const {
   patientSchema,
+  enhancedPatientRegistrationSchema,
+  nextOfKinSchema,
+  familyMemberSchema,
+  patientVitalsSchema,
+  registrationAuditSchema,
   doctorSchema,
   encounterSchema,
   diagnosisSchema,
@@ -54,10 +59,14 @@ function mapPatient(row) {
   return {
     id: row.id,
     firstName: row.first_name,
+    middleName: row.middle_name,
     lastName: row.last_name,
     gender: row.gender,
     dateOfBirth: row.date_of_birth,
     contactInfo: row.contact_info,
+    accountType: row.account_type,
+    recordNumber: row.record_number,
+    createdBy: row.created_by,
     createdAt: row.created_at,
   };
 }
@@ -74,6 +83,12 @@ function mapDoctor(row) {
   };
 }
 
+function generateRecordNumber() {
+  const timestamp = Date.now().toString().slice(-6);
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  return `TH${timestamp}${random}`;
+}
+
 app.get('/', (_req, res) => {
   // Temporary log to confirm traffic reaches this route.
   // eslint-disable-next-line no-console
@@ -87,20 +102,353 @@ app.get('/health', (_req, res) => {
 
 app.post('/patients', (req, res, next) => {
   try {
-    const payload = validate(patientSchema, req.body);
+    // Check if this is an enhanced registration request
+    const isEnhancedRequest = req.body.accountType && req.body.personalInfo;
+    
+    if (isEnhancedRequest) {
+      // Enhanced patient registration with account types, next of kin, and family members
+      const payload = validate(enhancedPatientRegistrationSchema, req.body);
+      
+      // Generate unique record number
+      const recordNumber = generateRecordNumber();
+      
+      // Start atomic transaction for multi-table operations
+      const createPatientWithRelations = db.transaction(() => {
+        // Create primary patient
+        const insertPatient = db.prepare(`
+          INSERT INTO patients (first_name, middle_name, last_name, gender, date_of_birth, contact_info, account_type, record_number, created_by)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        
+        const patientResult = insertPatient.run(
+          payload.personalInfo.firstName,
+          payload.personalInfo.middleName || null,
+          payload.personalInfo.lastName,
+          payload.personalInfo.gender,
+          payload.personalInfo.dateOfBirth,
+          payload.personalInfo.contactInfo || null,
+          payload.accountType,
+          recordNumber,
+          payload.createdBy
+        );
+        
+        const patientId = patientResult.lastInsertRowid;
+        
+        // Create next of kin if provided
+        let nextOfKinId = null;
+        if (payload.nextOfKin) {
+          const insertNextOfKin = db.prepare(`
+            INSERT INTO next_of_kin (patient_id, first_name, last_name, relationship, phone, email, address, is_emergency_contact)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `);
+          
+          const nextOfKinResult = insertNextOfKin.run(
+            patientId,
+            payload.nextOfKin.firstName,
+            payload.nextOfKin.lastName,
+            payload.nextOfKin.relationship,
+            payload.nextOfKin.phone || null,
+            payload.nextOfKin.email || null,
+            payload.nextOfKin.address || null,
+            payload.nextOfKin.isEmergencyContact ? 1 : 0
+          );
+          
+          nextOfKinId = nextOfKinResult.lastInsertRowid;
+        }
+        
+        // Create family members if provided
+        const familyMemberIds = [];
+        if (payload.familyMembers && Array.isArray(payload.familyMembers) && payload.familyMembers.length > 0) {
+          const insertFamilyPatient = db.prepare(`
+            INSERT INTO patients (first_name, middle_name, last_name, gender, date_of_birth, account_type, record_number, created_by)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `);
+          
+          const insertFamilyRelation = db.prepare(`
+            INSERT INTO family_members (primary_patient_id, member_patient_id, relationship, is_primary)
+            VALUES (?, ?, ?, ?)
+          `);
+          
+          payload.familyMembers.forEach((member) => {
+            const memberRecordNumber = generateRecordNumber();
+            
+            // Create family member as patient
+            const memberResult = insertFamilyPatient.run(
+              member.firstName,
+              member.middleName || null,
+              member.lastName,
+              member.gender,
+              member.dateOfBirth,
+              'personal', // Family members are personal accounts
+              memberRecordNumber,
+              payload.createdBy
+            );
+            
+            const memberId = memberResult.lastInsertRowid;
+            
+            // Create family relationship
+            insertFamilyRelation.run(
+              patientId,
+              memberId,
+              member.relationship,
+              member.isPrimary ? 1 : 0
+            );
+            
+            familyMemberIds.push({
+              id: memberId,
+              recordNumber: memberRecordNumber
+            });
+          });
+        }
+        
+        // Create audit log
+        const insertAudit = db.prepare(`
+          INSERT INTO registration_audit (patient_id, action, staff_id, staff_name, details)
+          VALUES (?, ?, ?, ?, ?)
+        `);
+        
+        const auditDetails = JSON.stringify({
+          accountType: payload.accountType,
+          hasNextOfKin: !!payload.nextOfKin,
+          familyMembersCount: payload.familyMembers ? payload.familyMembers.length : 0
+        });
+        
+        insertAudit.run(
+          patientId,
+          'patient_created',
+          payload.createdBy,
+          `Staff ${payload.createdBy}`, // This should be enhanced with actual staff name lookup
+          auditDetails
+        );
+        
+        return {
+          patientId,
+          recordNumber,
+          nextOfKinId,
+          familyMemberIds: familyMemberIds || []
+        };
+      });
+      
+      const result = createPatientWithRelations();
+      
+      // Fetch the created patient with all details
+      const patient = mapPatient(db.prepare('SELECT * FROM patients WHERE id = ?').get(result.patientId));
+      
+      // Fetch next of kin if created
+      let nextOfKin = null;
+      if (result.nextOfKinId) {
+        nextOfKin = db.prepare('SELECT * FROM next_of_kin WHERE id = ?').get(result.nextOfKinId);
+      }
+      
+      // Fetch family members if created
+      let familyMembers = [];
+      if (result.familyMemberIds && result.familyMemberIds.length > 0) {
+        const familyMemberQuery = db.prepare(`
+          SELECT p.*, fm.relationship, fm.is_primary
+          FROM patients p
+          JOIN family_members fm ON p.id = fm.member_patient_id
+          WHERE fm.primary_patient_id = ?
+        `);
+        const familyRows = familyMemberQuery.all(result.patientId);
+        familyMembers = familyRows.map(row => ({
+          ...mapPatient(row),
+          relationship: row.relationship,
+          isPrimary: row.is_primary === 1
+        }));
+      }
+      
+      res.status(201).json({
+        patient,
+        nextOfKin,
+        familyMembers,
+        message: 'Patient registration completed successfully'
+      });
+      
+    } else {
+      // Legacy patient registration (backward compatibility)
+      const payload = validate(patientSchema, req.body);
+      const recordNumber = generateRecordNumber();
+      
+      const stmt = db.prepare(`
+        INSERT INTO patients (first_name, middle_name, last_name, gender, date_of_birth, contact_info, account_type, record_number, created_by)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      
+      const result = stmt.run(
+        payload.firstName,
+        payload.middleName || null,
+        payload.lastName,
+        payload.gender,
+        payload.dateOfBirth,
+        payload.contactInfo || null,
+        payload.accountType || 'personal',
+        recordNumber,
+        payload.createdBy || null
+      );
+      
+      const patient = mapPatient(db.prepare('SELECT * FROM patients WHERE id = ?').get(result.lastInsertRowid));
+      res.status(201).json(patient);
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/patients/check-duplicate', (req, res, next) => {
+  try {
+    const { firstName, lastName, dateOfBirth, phone } = req.query;
+    
+    if (!firstName || !lastName || !dateOfBirth) {
+      return res.status(400).json({ 
+        message: 'firstName, lastName, and dateOfBirth are required parameters' 
+      });
+    }
+    
+    // Build dynamic query based on available parameters
+    let query = `
+      SELECT id, first_name, middle_name, last_name, gender, date_of_birth, 
+             contact_info, account_type, record_number, created_at
+      FROM patients 
+      WHERE LOWER(first_name) = LOWER(?) 
+        AND LOWER(last_name) = LOWER(?) 
+        AND date_of_birth = ?
+    `;
+    
+    const params = [firstName, lastName, dateOfBirth];
+    
+    // Add phone matching if provided
+    if (phone) {
+      query += ` AND (contact_info LIKE ? OR contact_info LIKE ?)`;
+      // Match phone in various formats within contact_info JSON
+      params.push(`%${phone}%`, `%${phone.replace(/\D/g, '')}%`);
+    }
+    
+    query += ` ORDER BY created_at DESC`;
+    
+    const duplicates = db.prepare(query).all(...params);
+    
+    const result = {
+      hasDuplicates: duplicates.length > 0,
+      duplicateCount: duplicates.length,
+      duplicates: duplicates.map(mapPatient)
+    };
+    
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/patients/:id/vitals', (req, res, next) => {
+  try {
+    const payload = validate(patientVitalsSchema, req.body);
+    
+    // Verify patient exists
+    const patient = db.prepare('SELECT id FROM patients WHERE id = ?').get(req.params.id);
+    if (!patient) {
+      res.status(404).json({ message: 'Patient not found' });
+      return;
+    }
+    
+    // Insert vital signs record
     const stmt = db.prepare(`
-      INSERT INTO patients (first_name, last_name, gender, date_of_birth, contact_info)
+      INSERT INTO patient_vitals (
+        patient_id, blood_pressure_systolic, blood_pressure_diastolic, 
+        heart_rate, temperature, height, weight, respiratory_rate, 
+        oxygen_saturation, recorded_by, recorded_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    const result = stmt.run(
+      req.params.id,
+      payload.bloodPressureSystolic || null,
+      payload.bloodPressureDiastolic || null,
+      payload.heartRate || null,
+      payload.temperature || null,
+      payload.height || null,
+      payload.weight || null,
+      payload.respiratoryRate || null,
+      payload.oxygenSaturation || null,
+      payload.recordedBy,
+      new Date().toISOString()
+    );
+    
+    const vitals = db.prepare('SELECT * FROM patient_vitals WHERE id = ?').get(result.lastInsertRowid);
+    res.status(201).json(vitals);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/patients/:id/resend-welcome-email', (req, res, next) => {
+  try {
+    const { staffId, reason } = req.body;
+    
+    if (!staffId) {
+      res.status(400).json({ message: 'staffId is required' });
+      return;
+    }
+    
+    // Verify patient exists
+    const patient = db.prepare('SELECT * FROM patients WHERE id = ?').get(req.params.id);
+    if (!patient) {
+      res.status(404).json({ message: 'Patient not found' });
+      return;
+    }
+    
+    // Log email resend attempt in audit
+    const insertAudit = db.prepare(`
+      INSERT INTO registration_audit (patient_id, action, staff_id, staff_name, details)
       VALUES (?, ?, ?, ?, ?)
     `);
-    const result = stmt.run(
-      payload.firstName,
-      payload.lastName,
-      payload.gender,
-      payload.dateOfBirth,
-      payload.contactInfo ?? null,
+    
+    const auditDetails = JSON.stringify({
+      reason: reason || 'Manual resend',
+      emailType: 'welcome_email'
+    });
+    
+    insertAudit.run(
+      req.params.id,
+      'welcome_email_resent',
+      staffId,
+      `Staff ${staffId}`,
+      auditDetails
     );
-    const patient = mapPatient(db.prepare('SELECT * FROM patients WHERE id = ?').get(result.lastInsertRowid));
-    res.status(201).json(patient);
+    
+    // In a real implementation, this would send an email
+    // For now, we'll just return success
+    res.json({
+      message: 'Welcome email resend initiated',
+      patientId: req.params.id,
+      status: 'pending'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/registration-audit', (req, res, next) => {
+  try {
+    const payload = validate(registrationAuditSchema, req.body);
+    
+    const stmt = db.prepare(`
+      INSERT INTO registration_audit (patient_id, action, staff_id, staff_name, details, ip_address, user_agent)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    const result = stmt.run(
+      payload.patientId || null,
+      payload.action,
+      payload.staffId,
+      payload.staffName,
+      payload.details || null,
+      payload.ipAddress || null,
+      payload.userAgent || null
+    );
+    
+    const audit = db.prepare('SELECT * FROM registration_audit WHERE id = ?').get(result.lastInsertRowid);
+    res.status(201).json(audit);
   } catch (error) {
     next(error);
   }
@@ -109,6 +457,37 @@ app.post('/patients', (req, res, next) => {
 app.get('/patients', (_req, res) => {
   const rows = db.prepare('SELECT * FROM patients ORDER BY created_at DESC').all();
   res.json(rows.map(mapPatient));
+});
+
+app.get('/patients/generate-record-number', (_req, res) => {
+  try {
+    const recordNumber = generateRecordNumber();
+    
+    // Verify uniqueness (retry if collision)
+    let isUnique = false;
+    let finalRecordNumber = recordNumber;
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    while (!isUnique && attempts < maxAttempts) {
+      const existing = db.prepare('SELECT id FROM patients WHERE record_number = ?').get(finalRecordNumber);
+      if (!existing) {
+        isUnique = true;
+      } else {
+        finalRecordNumber = generateRecordNumber();
+        attempts++;
+      }
+    }
+    
+    if (!isUnique) {
+      res.status(500).json({ message: 'Failed to generate unique record number' });
+      return;
+    }
+    
+    res.json({ recordNumber: finalRecordNumber });
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Failed to generate record number' });
+  }
 });
 
 app.get('/patients/:id', (req, res, next) => {

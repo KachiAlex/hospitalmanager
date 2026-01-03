@@ -22,12 +22,13 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "autoprefixer": "^10.4.23",
+    "fast-check": "^4.5.3",
+    "jest": "^30.2.0",
     "nodemon": "^3.1.11",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18",
-    "jest": "^30.2.0",
-    "fast-check": "^4.5.3",
-    "@types/jest": "^30.0.0"
+    "supertest": "^7.1.4",
+    "tailwindcss": "^4.1.18"
   }
 }

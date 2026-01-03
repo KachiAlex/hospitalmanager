@@ -1,0 +1,7 @@
+{
+  "firstName": "Test",
+  "lastName": "Patient",
+  "gender": "male",
+  "dateOfBirth": "1990-01-01",
+  "contactInfo": "test@example.com"
+}
