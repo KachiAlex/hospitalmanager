@@ -1,10 +1,12 @@
 import React, { useEffect, useCallback } from 'react';
-import Header from './components/Header';
-import HeroSection from './components/HeroSection';
-import ServicesSection from './components/ServicesSection';
-import WhyChooseUsSection from './components/WhyChooseUsSection';
-import ContactSection from './components/ContactSection';
-import Footer from './components/Footer';
+import {
+  Header,
+  HeroSection,
+  ServicesSection,
+  WhyChooseUsSection,
+  ContactSection,
+  Footer
+} from './components';
 import { defaultContentManager } from './data/contentManager';
 import { defaultColorManager } from './styles/colorManager';
 import './HospitalHomepage.css';

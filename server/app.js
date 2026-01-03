@@ -17,6 +17,7 @@ const {
   dischargeSchema,
 } = require('./schemas');
 const { init, db } = require('./db');
+const { getEmailService } = require('./services/emailService');
 
 console.log('Starting T-Happy Hospital Server...');
 console.log('Initializing database...');
@@ -462,7 +463,7 @@ app.post('/patients/:id/vitals', requireStaffAuth, (req, res, next) => {
   }
 });
 
-app.post('/patients/:id/resend-welcome-email', requireStaffAuth, (req, res, next) => {
+app.post('/patients/:id/resend-welcome-email', requireStaffAuth, async (req, res, next) => {
   try {
     const { staffId, reason } = req.body;
     
@@ -478,6 +479,33 @@ app.post('/patients/:id/resend-welcome-email', requireStaffAuth, (req, res, next
       return;
     }
     
+    // Check if patient has email
+    if (!patient.email) {
+      res.status(400).json({ message: 'Patient does not have an email address on file' });
+      return;
+    }
+    
+    // Get email service
+    const emailService = getEmailService();
+    
+    // Send welcome email
+    let emailResult = null;
+    try {
+      emailResult = await emailService.sendWelcomeEmail({
+        to: patient.email,
+        patientName: `${patient.first_name} ${patient.last_name}`,
+        recordNumber: patient.record_number,
+        hospitalName: 'CareWell Hospital'
+      });
+    } catch (emailError) {
+      console.error('Email send error:', emailError.message);
+      // Continue to log audit even if email fails
+      emailResult = {
+        success: false,
+        error: emailError.message
+      };
+    }
+    
     // Log email resend attempt in audit
     const insertAudit = db.prepare(`
       INSERT INTO registration_audit (patient_id, action, staff_id, staff_name, details)
@@ -486,7 +514,10 @@ app.post('/patients/:id/resend-welcome-email', requireStaffAuth, (req, res, next
     
     const auditDetails = JSON.stringify({
       reason: reason || 'Manual resend',
-      emailType: 'welcome_email'
+      emailType: 'welcome_email',
+      emailStatus: emailResult.success ? 'sent' : 'failed',
+      emailError: emailResult.error || null,
+      messageId: emailResult.messageId || null
     });
     
     insertAudit.run(
@@ -497,12 +528,11 @@ app.post('/patients/:id/resend-welcome-email', requireStaffAuth, (req, res, next
       auditDetails
     );
     
-    // In a real implementation, this would send an email
-    // For now, we'll just return success
     res.json({
-      message: 'Welcome email resend initiated',
+      message: emailResult.success ? 'Welcome email sent successfully' : 'Welcome email send failed',
       patientId: req.params.id,
-      status: 'pending'
+      status: emailResult.success ? 'sent' : 'failed',
+      emailStatus: emailResult
     });
   } catch (error) {
     next(error);
