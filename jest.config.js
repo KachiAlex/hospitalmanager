@@ -6,6 +6,5 @@ module.exports = {
     '!server/**/*.test.js',
     '!**/node_modules/**'
   ],
-  setupFilesAfterEnv: ['<rootDir>/test-setup.js'],
   transform: {}
 };

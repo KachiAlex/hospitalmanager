@@ -6,7 +6,7 @@ This implementation plan addresses the patient discharge process by building the
 
 ## Tasks
 
-- [ ] 1. Database Schema Extensions
+- [x] 1. Database Schema Extensions
   - Create discharge_records table for discharge documentation
   - Create billing_records table for billing information
   - Create billing_items table for itemized charges
@@ -16,12 +16,12 @@ This implementation plan addresses the patient discharge process by building the
   - Add appropriate indexes and constraints for data integrity
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 8.1, 8.2, 8.3_
 
-- [ ] 1.1 Write property tests for database schema integrity
+- [x] 1.1 Write property tests for database schema integrity
   - **Property 10: Discharge Record Completeness**
   - **Validates: Requirements 5.1, 5.2, 5.3, 5.4**
 
-- [ ] 2. Doctor Discharge Endpoints
-  - [ ] 2.1 Implement POST /discharge endpoint
+- [x] 2. Doctor Discharge Endpoints
+  - [x] 2.1 Implement POST /discharge endpoint
     - Verify doctor authorization
     - Validate patient is currently admitted
     - Create discharge record with medical notes
@@ -29,18 +29,18 @@ This implementation plan addresses the patient discharge process by building the
     - Create audit log entry
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7_
 
-  - [ ] 2.2 Write property tests for doctor discharge
+  - [x] 2.2 Write property tests for doctor discharge
     - **Property 1: Doctor Discharge Authorization**
     - **Property 8: Patient Admission Verification**
     - **Validates: Requirements 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7**
 
-  - [ ] 2.3 Implement GET /discharge/:id endpoint
+  - [x] 2.3 Implement GET /discharge/:id endpoint
     - Retrieve complete discharge record
     - Include patient, doctor, billing, payment, and bed info
     - Verify user has access permissions
     - _Requirements: 5.6, 5.7, 6.8_
 
-  - [ ] 2.4 Write property tests for discharge retrieval
+  - [x] 2.4 Write property tests for discharge retrieval
     - **Property 10: Discharge Record Completeness**
     - **Validates: Requirements 5.6, 5.7**
 

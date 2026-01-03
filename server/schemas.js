@@ -123,6 +123,13 @@ const dischargeSchema = z.object({
   notes: z.string().optional(),
 });
 
+// Doctor discharge schema for new discharge process
+const doctorDischargeSchema = z.object({
+  patientId: z.number().int().positive(),
+  admissionId: z.number().int().positive(),
+  dischargeNotes: z.string().min(1).max(2000),
+});
+
 module.exports = {
   patientSchema,
   enhancedPatientRegistrationSchema,
@@ -138,4 +145,5 @@ module.exports = {
   prescriptionSchema,
   admissionSchema,
   dischargeSchema,
+  doctorDischargeSchema,
 };

@@ -15,6 +15,7 @@ const {
   prescriptionSchema,
   admissionSchema,
   dischargeSchema,
+  doctorDischargeSchema,
 } = require('./schemas');
 const { init, db } = require('./db');
 const { getEmailService } = require('./services/emailService');
@@ -121,8 +122,8 @@ function requireStaffAuth(req, res, next) {
   next();
 }
 
-// Authorization middleware for registration endpoints
-function requireStaffAuth(req, res, next) {
+// Authorization middleware for doctor discharge operations
+function requireDoctorAuth(req, res, next) {
   const staffId = req.headers['x-staff-id'];
   const staffRole = req.headers['x-staff-role'];
   
@@ -136,10 +137,40 @@ function requireStaffAuth(req, res, next) {
     return;
   }
   
-  // Verify staff has appropriate role for registration
-  const allowedRoles = ['administrator', 'receptionist'];
+  // Verify staff has doctor role for discharge
+  if (staffRole.toLowerCase() !== 'doctor') {
+    res.status(403).json({ message: 'Only doctors can initiate patient discharge' });
+    return;
+  }
+  
+  // Attach staff info to request for logging
+  req.staff = {
+    id: staffId,
+    role: staffRole
+  };
+  
+  next();
+}
+
+// Authorization middleware for admin operations (billing, payment, bed release)
+function requireAdminAuth(req, res, next) {
+  const staffId = req.headers['x-staff-id'];
+  const staffRole = req.headers['x-staff-role'];
+  
+  if (!staffId) {
+    res.status(401).json({ message: 'Staff ID is required' });
+    return;
+  }
+  
+  if (!staffRole) {
+    res.status(401).json({ message: 'Staff role is required' });
+    return;
+  }
+  
+  // Verify staff has admin role
+  const allowedRoles = ['admin', 'administrator'];
   if (!allowedRoles.includes(staffRole.toLowerCase())) {
-    res.status(403).json({ message: 'Insufficient permissions for patient registration' });
+    res.status(403).json({ message: 'Only administrators can perform this operation' });
     return;
   }
   
@@ -873,6 +904,160 @@ app.get('/admissions', (_req, res) => {
       notes: row.notes,
     }));
   res.json(rows);
+});
+
+// Doctor discharge endpoint - initiates patient discharge
+app.post('/discharge', requireDoctorAuth, (req, res, next) => {
+  try {
+    const payload = validate(doctorDischargeSchema, req.body);
+    
+    // Verify patient exists
+    const patient = db.prepare('SELECT id FROM patients WHERE id = ?').get(payload.patientId);
+    if (!patient) {
+      res.status(404).json({ message: 'Patient not found' });
+      return;
+    }
+    
+    // Verify admission exists and is active
+    const admission = db.prepare('SELECT * FROM admissions WHERE id = ? AND patient_id = ?').get(payload.admissionId, payload.patientId);
+    if (!admission) {
+      res.status(404).json({ message: 'Admission not found for this patient' });
+      return;
+    }
+    
+    if (admission.status !== 'active') {
+      res.status(409).json({ message: 'Patient is not currently admitted' });
+      return;
+    }
+    
+    // Create discharge record in transaction
+    const createDischarge = db.transaction(() => {
+      // Create discharge record
+      const insertDischarge = db.prepare(`
+        INSERT INTO discharge_records (patient_id, doctor_id, admission_id, status, discharge_notes, discharge_date)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+      
+      const dischargeResult = insertDischarge.run(
+        payload.patientId,
+        req.staff.id, // doctor_id from staff auth
+        payload.admissionId,
+        'medical_discharge_complete',
+        payload.dischargeNotes,
+        new Date().toISOString()
+      );
+      
+      const dischargeId = dischargeResult.lastInsertRowid;
+      
+      // Create audit log entry
+      const insertAudit = db.prepare(`
+        INSERT INTO discharge_audit (discharge_id, action, staff_id, staff_name, staff_role, details)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+      
+      insertAudit.run(
+        dischargeId,
+        'discharge_initiated',
+        req.staff.id,
+        `Doctor ${req.staff.id}`,
+        'doctor',
+        JSON.stringify({
+          patientId: payload.patientId,
+          admissionId: payload.admissionId,
+          dischargeNotes: payload.dischargeNotes
+        })
+      );
+      
+      return dischargeId;
+    });
+    
+    const dischargeId = createDischarge();
+    
+    // Fetch the created discharge record
+    const discharge = db.prepare('SELECT * FROM discharge_records WHERE id = ?').get(dischargeId);
+    
+    res.status(201).json({
+      id: discharge.id,
+      patientId: discharge.patient_id,
+      doctorId: discharge.doctor_id,
+      admissionId: discharge.admission_id,
+      status: discharge.status,
+      dischargeDate: discharge.discharge_date,
+      dischargeNotes: discharge.discharge_notes,
+      createdAt: discharge.created_at,
+      message: 'Patient discharge initiated successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get discharge record by ID
+app.get('/discharge/:id', (req, res, next) => {
+  try {
+    const discharge = db.prepare('SELECT * FROM discharge_records WHERE id = ?').get(req.params.id);
+    
+    if (!discharge) {
+      res.status(404).json({ message: 'Discharge record not found' });
+      return;
+    }
+    
+    // Fetch related data
+    const patient = mapPatient(db.prepare('SELECT * FROM patients WHERE id = ?').get(discharge.patient_id));
+    const doctor = mapDoctor(db.prepare('SELECT * FROM doctors WHERE id = ?').get(discharge.doctor_id));
+    const admission = db.prepare('SELECT * FROM admissions WHERE id = ?').get(discharge.admission_id);
+    
+    // Fetch billing if exists
+    const billing = db.prepare('SELECT * FROM billing_records WHERE discharge_id = ?').get(discharge.id);
+    
+    // Fetch payment if exists
+    const payment = billing ? db.prepare('SELECT * FROM payment_records WHERE billing_id = ?').get(billing.id) : null;
+    
+    // Fetch bed release if exists
+    const bedRelease = db.prepare('SELECT * FROM bed_releases WHERE discharge_id = ?').get(discharge.id);
+    
+    res.json({
+      id: discharge.id,
+      patient,
+      doctor,
+      admission,
+      status: discharge.status,
+      dischargeDate: discharge.discharge_date,
+      dischargeNotes: discharge.discharge_notes,
+      billing,
+      payment,
+      bedRelease,
+      createdAt: discharge.created_at,
+      updatedAt: discharge.updated_at
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get discharge audit trail
+app.get('/discharge/:id/audit', (req, res, next) => {
+  try {
+    const discharge = db.prepare('SELECT id FROM discharge_records WHERE id = ?').get(req.params.id);
+    
+    if (!discharge) {
+      res.status(404).json({ message: 'Discharge record not found' });
+      return;
+    }
+    
+    const auditTrail = db.prepare(`
+      SELECT * FROM discharge_audit 
+      WHERE discharge_id = ? 
+      ORDER BY created_at DESC
+    `).all(req.params.id);
+    
+    res.json({
+      dischargeId: req.params.id,
+      auditTrail
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 // eslint-disable-next-line no-unused-vars
