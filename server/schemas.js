@@ -145,6 +145,12 @@ const paymentSchema = z.object({
   notes: z.string().optional(),
 });
 
+// Bed release schema for releasing bed after discharge
+const bedReleaseSchema = z.object({
+  dischargeId: z.number().int().positive(),
+  bedId: z.number().int().positive(),
+});
+
 module.exports = {
   patientSchema,
   enhancedPatientRegistrationSchema,
@@ -163,4 +169,5 @@ module.exports = {
   doctorDischargeSchema,
   billingSchema,
   paymentSchema,
+  bedReleaseSchema,
 };

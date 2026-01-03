@@ -18,6 +18,7 @@ const {
   doctorDischargeSchema,
   billingSchema,
   paymentSchema,
+  bedReleaseSchema,
 } = require('./schemas');
 const { init, db } = require('./db');
 const { getEmailService } = require('./services/emailService');
@@ -1298,6 +1299,139 @@ app.get('/payment/:id', (req, res, next) => {
       remainingBalance: payment.remaining_balance,
       notes: payment.notes,
       createdAt: payment.created_at
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Admin bed release endpoint - releases bed after discharge and payment
+app.post('/bed-release', requireAdminAuth, (req, res, next) => {
+  try {
+    const payload = validate(bedReleaseSchema, req.body);
+    
+    // Verify discharge record exists
+    const discharge = db.prepare('SELECT * FROM discharge_records WHERE id = ?').get(payload.dischargeId);
+    if (!discharge) {
+      res.status(404).json({ message: 'Discharge record not found' });
+      return;
+    }
+    
+    // Verify bed exists
+    const bed = db.prepare('SELECT * FROM beds WHERE id = ?').get(payload.bedId);
+    if (!bed) {
+      res.status(404).json({ message: 'Bed not found' });
+      return;
+    }
+    
+    // Verify discharge and payment are complete
+    const billing = db.prepare('SELECT * FROM billing_records WHERE discharge_id = ?').get(payload.dischargeId);
+    if (!billing) {
+      res.status(409).json({ message: 'Billing not calculated for this discharge' });
+      return;
+    }
+    
+    const payment = db.prepare('SELECT * FROM payment_records WHERE billing_id = ?').get(billing.id);
+    if (!payment) {
+      res.status(409).json({ message: 'Payment not processed for this discharge' });
+      return;
+    }
+    
+    // Check if bed release already exists
+    const existingRelease = db.prepare('SELECT id FROM bed_releases WHERE discharge_id = ?').get(payload.dischargeId);
+    if (existingRelease) {
+      res.status(409).json({ message: 'Bed already released for this discharge' });
+      return;
+    }
+    
+    // Release bed in transaction
+    const releaseBed = db.transaction(() => {
+      // Create bed release record
+      const insertRelease = db.prepare(`
+        INSERT INTO bed_releases (discharge_id, bed_id, patient_id, status, release_date, admin_id)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+      
+      const releaseResult = insertRelease.run(
+        payload.dischargeId,
+        payload.bedId,
+        discharge.patient_id,
+        'available',
+        new Date().toISOString(),
+        req.staff.id
+      );
+      
+      const releaseId = releaseResult.lastInsertRowid;
+      
+      // Update bed status to available
+      db.prepare('UPDATE beds SET status = ? WHERE id = ?').run('available', payload.bedId);
+      
+      // Create audit log entry
+      const insertAudit = db.prepare(`
+        INSERT INTO discharge_audit (discharge_id, action, staff_id, staff_name, staff_role, details)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+      
+      insertAudit.run(
+        payload.dischargeId,
+        'bed_released',
+        req.staff.id,
+        `Admin ${req.staff.id}`,
+        'admin',
+        JSON.stringify({
+          bedId: payload.bedId,
+          patientId: discharge.patient_id,
+          releaseDate: new Date().toISOString()
+        })
+      );
+      
+      return releaseId;
+    });
+    
+    const releaseId = releaseBed();
+    
+    // Fetch the created bed release record
+    const release = db.prepare('SELECT * FROM bed_releases WHERE id = ?').get(releaseId);
+    
+    res.status(201).json({
+      id: release.id,
+      dischargeId: release.discharge_id,
+      bedId: release.bed_id,
+      patientId: release.patient_id,
+      status: release.status,
+      releaseDate: release.release_date,
+      createdAt: release.created_at,
+      message: 'Bed released successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get bed release record by ID
+app.get('/bed-release/:id', (req, res, next) => {
+  try {
+    const release = db.prepare('SELECT * FROM bed_releases WHERE id = ?').get(req.params.id);
+    
+    if (!release) {
+      res.status(404).json({ message: 'Bed release record not found' });
+      return;
+    }
+    
+    // Fetch related bed and discharge
+    const bed = db.prepare('SELECT * FROM beds WHERE id = ?').get(release.bed_id);
+    const discharge = db.prepare('SELECT * FROM discharge_records WHERE id = ?').get(release.discharge_id);
+    
+    res.json({
+      id: release.id,
+      dischargeId: release.discharge_id,
+      bedId: release.bed_id,
+      bed,
+      discharge,
+      patientId: release.patient_id,
+      status: release.status,
+      releaseDate: release.release_date,
+      createdAt: release.created_at
     });
   } catch (error) {
     next(error);
