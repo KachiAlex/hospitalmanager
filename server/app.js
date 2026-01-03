@@ -16,6 +16,7 @@ const {
   admissionSchema,
   dischargeSchema,
   doctorDischargeSchema,
+  billingSchema,
 } = require('./schemas');
 const { init, db } = require('./db');
 const { getEmailService } = require('./services/emailService');
@@ -1054,6 +1055,124 @@ app.get('/discharge/:id/audit', (req, res, next) => {
     res.json({
       dischargeId: req.params.id,
       auditTrail
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Admin billing endpoint - calculates patient bill
+app.post('/billing', requireAdminAuth, (req, res, next) => {
+  try {
+    const payload = validate(billingSchema, req.body);
+    
+    // Verify discharge record exists
+    const discharge = db.prepare('SELECT * FROM discharge_records WHERE id = ?').get(payload.dischargeId);
+    if (!discharge) {
+      res.status(404).json({ message: 'Discharge record not found' });
+      return;
+    }
+    
+    // Check if billing already exists for this discharge
+    const existingBilling = db.prepare('SELECT id FROM billing_records WHERE discharge_id = ?').get(payload.dischargeId);
+    if (existingBilling) {
+      res.status(409).json({ message: 'Billing already calculated for this discharge' });
+      return;
+    }
+    
+    // Calculate billing in transaction
+    const createBilling = db.transaction(() => {
+      // Calculate discount amount
+      const discountAmount = (payload.subtotal * payload.discountPercentage) / 100;
+      const totalAmount = payload.subtotal - discountAmount;
+      
+      // Create billing record
+      const insertBilling = db.prepare(`
+        INSERT INTO billing_records (discharge_id, patient_id, subtotal, discount_percentage, discount_amount, total_amount, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+      
+      const billingResult = insertBilling.run(
+        payload.dischargeId,
+        discharge.patient_id,
+        payload.subtotal,
+        payload.discountPercentage,
+        discountAmount,
+        totalAmount,
+        'billing_complete'
+      );
+      
+      const billingId = billingResult.lastInsertRowid;
+      
+      // Create audit log entry
+      const insertAudit = db.prepare(`
+        INSERT INTO discharge_audit (discharge_id, action, staff_id, staff_name, staff_role, details)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+      
+      insertAudit.run(
+        payload.dischargeId,
+        'billing_calculated',
+        req.staff.id,
+        `Admin ${req.staff.id}`,
+        'admin',
+        JSON.stringify({
+          subtotal: payload.subtotal,
+          discountPercentage: payload.discountPercentage,
+          discountAmount,
+          totalAmount
+        })
+      );
+      
+      return billingId;
+    });
+    
+    const billingId = createBilling();
+    
+    // Fetch the created billing record
+    const billing = db.prepare('SELECT * FROM billing_records WHERE id = ?').get(billingId);
+    
+    res.status(201).json({
+      id: billing.id,
+      dischargeId: billing.discharge_id,
+      patientId: billing.patient_id,
+      subtotal: billing.subtotal,
+      discountPercentage: billing.discount_percentage,
+      discountAmount: billing.discount_amount,
+      totalAmount: billing.total_amount,
+      status: billing.status,
+      createdAt: billing.created_at,
+      message: 'Billing calculated successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get billing record by ID
+app.get('/billing/:id', (req, res, next) => {
+  try {
+    const billing = db.prepare('SELECT * FROM billing_records WHERE id = ?').get(req.params.id);
+    
+    if (!billing) {
+      res.status(404).json({ message: 'Billing record not found' });
+      return;
+    }
+    
+    // Fetch billing items
+    const items = db.prepare('SELECT * FROM billing_items WHERE billing_id = ?').all(req.params.id);
+    
+    res.json({
+      id: billing.id,
+      dischargeId: billing.discharge_id,
+      patientId: billing.patient_id,
+      subtotal: billing.subtotal,
+      discountPercentage: billing.discount_percentage,
+      discountAmount: billing.discount_amount,
+      totalAmount: billing.total_amount,
+      status: billing.status,
+      items,
+      createdAt: billing.created_at
     });
   } catch (error) {
     next(error);

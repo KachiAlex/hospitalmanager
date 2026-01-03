@@ -130,6 +130,13 @@ const doctorDischargeSchema = z.object({
   dischargeNotes: z.string().min(1).max(2000),
 });
 
+// Billing schema for calculating patient bill
+const billingSchema = z.object({
+  dischargeId: z.number().int().positive(),
+  subtotal: z.number().min(0),
+  discountPercentage: z.number().min(0).max(100).optional().default(0),
+});
+
 module.exports = {
   patientSchema,
   enhancedPatientRegistrationSchema,
@@ -146,4 +153,5 @@ module.exports = {
   admissionSchema,
   dischargeSchema,
   doctorDischargeSchema,
+  billingSchema,
 };
