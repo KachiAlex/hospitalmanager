@@ -89,6 +89,37 @@ function generateRecordNumber() {
   return `TH${timestamp}${random}`;
 }
 
+// Staff authorization middleware
+function requireStaffAuth(req, res, next) {
+  const staffId = req.headers['x-staff-id'];
+  const staffRole = req.headers['x-staff-role'];
+  
+  if (!staffId) {
+    res.status(401).json({ message: 'Staff authentication required: missing Staff ID header' });
+    return;
+  }
+  
+  if (!staffRole) {
+    res.status(401).json({ message: 'Staff authentication required: missing Staff role header' });
+    return;
+  }
+  
+  // Verify staff role is authorized for registration
+  const authorizedRoles = ['admin', 'receptionist', 'administrator'];
+  if (!authorizedRoles.includes(staffRole.toLowerCase())) {
+    res.status(403).json({ message: `Insufficient permissions: role '${staffRole}' is not authorized for patient registration` });
+    return;
+  }
+  
+  // Attach staff info to request for audit logging
+  req.staff = {
+    id: staffId,
+    role: staffRole.toLowerCase()
+  };
+  
+  next();
+}
+
 // Authorization middleware for registration endpoints
 function requireStaffAuth(req, res, next) {
   const staffId = req.headers['x-staff-id'];
@@ -150,7 +181,7 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true, timestamp: new Date().toISOString() });
 });
 
-app.post('/patients', (req, res, next) => {
+app.post('/patients', requireStaffAuth, (req, res, next) => {
   try {
     // Check if this is an enhanced registration request
     const isEnhancedRequest = req.body.accountType && req.body.personalInfo;
@@ -389,7 +420,7 @@ app.get('/patients/check-duplicate', (req, res, next) => {
   }
 });
 
-app.post('/patients/:id/vitals', (req, res, next) => {
+app.post('/patients/:id/vitals', requireStaffAuth, (req, res, next) => {
   try {
     const payload = validate(patientVitalsSchema, req.body);
     
@@ -431,7 +462,7 @@ app.post('/patients/:id/vitals', (req, res, next) => {
   }
 });
 
-app.post('/patients/:id/resend-welcome-email', (req, res, next) => {
+app.post('/patients/:id/resend-welcome-email', requireStaffAuth, (req, res, next) => {
   try {
     const { staffId, reason } = req.body;
     
@@ -478,7 +509,7 @@ app.post('/patients/:id/resend-welcome-email', (req, res, next) => {
   }
 });
 
-app.post('/registration-audit', (req, res, next) => {
+app.post('/registration-audit', requireStaffAuth, (req, res, next) => {
   try {
     const payload = validate(registrationAuditSchema, req.body);
     
