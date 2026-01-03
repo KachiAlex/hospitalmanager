@@ -89,6 +89,56 @@ function generateRecordNumber() {
   return `TH${timestamp}${random}`;
 }
 
+// Authorization middleware for registration endpoints
+function requireStaffAuth(req, res, next) {
+  const staffId = req.headers['x-staff-id'];
+  const staffRole = req.headers['x-staff-role'];
+  
+  if (!staffId) {
+    res.status(401).json({ message: 'Staff ID is required' });
+    return;
+  }
+  
+  if (!staffRole) {
+    res.status(401).json({ message: 'Staff role is required' });
+    return;
+  }
+  
+  // Verify staff has appropriate role for registration
+  const allowedRoles = ['administrator', 'receptionist'];
+  if (!allowedRoles.includes(staffRole.toLowerCase())) {
+    res.status(403).json({ message: 'Insufficient permissions for patient registration' });
+    return;
+  }
+  
+  // Attach staff info to request for logging
+  req.staff = {
+    id: staffId,
+    role: staffRole
+  };
+  
+  next();
+}
+
+// Verify staff exists and is active
+function verifyStaffExists(req, res, next) {
+  const staffId = req.staff?.id;
+  
+  if (!staffId) {
+    res.status(401).json({ message: 'Staff authentication required' });
+    return;
+  }
+  
+  // In a real implementation, this would query a staff table
+  // For now, we'll accept any valid staff ID
+  if (!/^\d+$/.test(staffId)) {
+    res.status(400).json({ message: 'Invalid staff ID format' });
+    return;
+  }
+  
+  next();
+}
+
 app.get('/', (_req, res) => {
   // Temporary log to confirm traffic reaches this route.
   // eslint-disable-next-line no-console
