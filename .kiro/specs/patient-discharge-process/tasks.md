@@ -44,8 +44,8 @@ This implementation plan addresses the patient discharge process by building the
     - **Property 10: Discharge Record Completeness**
     - **Validates: Requirements 5.6, 5.7**
 
-- [ ] 3. Billing Endpoints
-  - [ ] 3.1 Implement POST /billing endpoint
+- [x] 3. Billing Endpoints
+  - [x] 3.1 Implement POST /billing endpoint
     - Retrieve billable items for patient stay
     - Calculate total charges
     - Apply discounts
@@ -53,13 +53,13 @@ This implementation plan addresses the patient discharge process by building the
     - Validate all charges
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8_
 
-  - [ ] 3.2 Write property tests for billing calculation
+  - [x] 3.2 Write property tests for billing calculation
     - **Property 3: Billing Calculation Accuracy**
     - **Property 9: Billing Item Linkage**
     - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8**
 
-- [ ] 4. Payment Endpoints
-  - [ ] 4.1 Implement POST /payment endpoint
+- [x] 4. Payment Endpoints
+  - [x] 4.1 Implement POST /payment endpoint
     - Verify bill exists and is ready for payment
     - Record payment amount and method
     - Update payment status
@@ -67,13 +67,13 @@ This implementation plan addresses the patient discharge process by building the
     - Create payment record
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
 
-  - [ ] 4.2 Write property tests for payment processing
+  - [x] 4.2 Write property tests for payment processing
     - **Property 4: Payment Amount Validation**
     - **Property 2: Discharge Status Progression**
     - **Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8**
 
-- [ ] 5. Bed Release Endpoints
-  - [ ] 5.1 Implement POST /bed-release endpoint
+- [x] 5. Bed Release Endpoints
+  - [x] 5.1 Implement POST /bed-release endpoint
     - Verify discharge and payment are complete
     - Update bed status to available
     - Record release date and time
@@ -81,7 +81,7 @@ This implementation plan addresses the patient discharge process by building the
     - Create audit log entry
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8_
 
-  - [ ] 5.2 Write property tests for bed release
+  - [x] 5.2 Write property tests for bed release
     - **Property 5: Bed Release Verification**
     - **Property 2: Discharge Status Progression**
     - **Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8**
