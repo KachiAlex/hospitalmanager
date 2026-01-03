@@ -206,8 +206,4 @@ class PatientRegistrationApiService {
 const patientRegistrationApi = new PatientRegistrationApiService();
 
 export default patientRegistrationApi;
-
-// Export individual methods for easier testing
-export {
-  PatientRegistrationApiService
-};
+export { patientRegistrationApi, PatientRegistrationApiService };

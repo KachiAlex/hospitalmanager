@@ -100,19 +100,27 @@ export interface ValidationRules {
 export interface CreatePatientRequest {
   accountType: 'personal' | 'family';
   personalInfo: PersonalInfo;
-  contactInfo: ContactInfo;
-  nextOfKin: NextOfKin[];
+  nextOfKin?: NextOfKin;
   familyMembers?: FamilyMember[];
+  createdBy: string;
 }
 
 export interface CreatePatientResponse {
   patient: Patient;
-  recordNumber: string;
-  welcomeEmailSent: boolean;
+  nextOfKin?: NextOfKin;
+  familyMembers?: FamilyMember[];
+  message: string;
 }
 
 export interface RecordVitalsRequest {
-  vitals: VitalSigns;
+  bloodPressureSystolic?: number;
+  bloodPressureDiastolic?: number;
+  heartRate?: number;
+  temperature?: number;
+  weight?: number;
+  height?: number;
+  recordedBy: string;
+  recordedAt?: string;
 }
 
 export interface DuplicateCheckRequest {

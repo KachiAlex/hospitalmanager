@@ -336,3 +336,61 @@ export const formatPhoneNumber = (phoneNumber: string): string => {
 export const cleanPhoneNumber = (phoneNumber: string): string => {
   return phoneNumber.replace(/[\s\-\(\)]/g, '');
 };
+
+/**
+ * Validates patient data for personal registration form
+ * Returns an object with field names as keys and error messages as values
+ */
+export const validatePatientData = (data: Record<string, any>): Record<string, string> => {
+  const errors: Record<string, string> = {};
+
+  // First name validation
+  if (!data.firstName || data.firstName.trim() === '') {
+    errors.firstName = ERROR_MESSAGES.REQUIRED_FIELD;
+  }
+
+  // Last name validation
+  if (!data.lastName || data.lastName.trim() === '') {
+    errors.lastName = ERROR_MESSAGES.REQUIRED_FIELD;
+  }
+
+  // Gender validation
+  if (!data.gender || data.gender.trim() === '') {
+    errors.gender = ERROR_MESSAGES.REQUIRED_FIELD;
+  }
+
+  // Date of birth validation
+  if (!data.dateOfBirth || data.dateOfBirth.trim() === '') {
+    errors.dateOfBirth = ERROR_MESSAGES.REQUIRED_FIELD;
+  } else {
+    // Check if date is not in the future
+    const dob = new Date(data.dateOfBirth);
+    const today = new Date();
+    if (dob > today) {
+      errors.dateOfBirth = 'Date of birth cannot be in the future';
+    }
+    // Check if age is reasonable (at least 0 years old)
+    const age = today.getFullYear() - dob.getFullYear();
+    if (age < 0) {
+      errors.dateOfBirth = 'Date of birth cannot be in the future';
+    }
+  }
+
+  // Phone validation (optional but if provided, must be valid)
+  if (data.phone && data.phone.trim() !== '') {
+    const phoneErrors = ValidationService.validatePhoneNumber(data.phone);
+    if (phoneErrors.length > 0) {
+      errors.phone = phoneErrors[0];
+    }
+  }
+
+  // Email validation (optional but if provided, must be valid)
+  if (data.email && data.email.trim() !== '') {
+    const emailErrors = ValidationService.validateEmail(data.email);
+    if (emailErrors.length > 0) {
+      errors.email = emailErrors[0];
+    }
+  }
+
+  return errors;
+};
