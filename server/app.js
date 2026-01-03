@@ -17,6 +17,7 @@ const {
   dischargeSchema,
   doctorDischargeSchema,
   billingSchema,
+  paymentSchema,
 } = require('./schemas');
 const { init, db } = require('./db');
 const { getEmailService } = require('./services/emailService');
@@ -1173,6 +1174,130 @@ app.get('/billing/:id', (req, res, next) => {
       status: billing.status,
       items,
       createdAt: billing.created_at
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Admin payment endpoint - processes payment for billing
+app.post('/payment', requireAdminAuth, (req, res, next) => {
+  try {
+    const payload = validate(paymentSchema, req.body);
+    
+    // Verify billing record exists
+    const billing = db.prepare('SELECT * FROM billing_records WHERE id = ?').get(payload.billingId);
+    if (!billing) {
+      res.status(404).json({ message: 'Billing record not found' });
+      return;
+    }
+    
+    // Verify payment amount is valid
+    if (payload.paymentAmount > billing.total_amount) {
+      res.status(400).json({ message: 'Payment amount exceeds total bill' });
+      return;
+    }
+    
+    // Check if payment already exists for this billing
+    const existingPayment = db.prepare('SELECT id FROM payment_records WHERE billing_id = ?').get(payload.billingId);
+    if (existingPayment) {
+      res.status(409).json({ message: 'Payment already processed for this billing' });
+      return;
+    }
+    
+    // Process payment in transaction
+    const processPayment = db.transaction(() => {
+      // Calculate remaining balance
+      const remainingBalance = billing.total_amount - payload.paymentAmount;
+      
+      // Create payment record
+      const insertPayment = db.prepare(`
+        INSERT INTO payment_records (billing_id, payment_amount, payment_method, payment_status, remaining_balance, admin_id, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+      
+      const paymentResult = insertPayment.run(
+        payload.billingId,
+        payload.paymentAmount,
+        payload.paymentMethod,
+        'complete',
+        remainingBalance,
+        req.staff.id,
+        payload.notes || null
+      );
+      
+      const paymentId = paymentResult.lastInsertRowid;
+      
+      // Get discharge ID from billing
+      const discharge = db.prepare('SELECT discharge_id FROM billing_records WHERE id = ?').get(payload.billingId);
+      
+      // Create audit log entry
+      const insertAudit = db.prepare(`
+        INSERT INTO discharge_audit (discharge_id, action, staff_id, staff_name, staff_role, details)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+      
+      insertAudit.run(
+        discharge.discharge_id,
+        'payment_processed',
+        req.staff.id,
+        `Admin ${req.staff.id}`,
+        'admin',
+        JSON.stringify({
+          billingId: payload.billingId,
+          paymentAmount: payload.paymentAmount,
+          paymentMethod: payload.paymentMethod,
+          remainingBalance
+        })
+      );
+      
+      return paymentId;
+    });
+    
+    const paymentId = processPayment();
+    
+    // Fetch the created payment record
+    const payment = db.prepare('SELECT * FROM payment_records WHERE id = ?').get(paymentId);
+    
+    res.status(201).json({
+      id: payment.id,
+      billingId: payment.billing_id,
+      paymentAmount: payment.payment_amount,
+      paymentMethod: payment.payment_method,
+      paymentStatus: payment.payment_status,
+      remainingBalance: payment.remaining_balance,
+      notes: payment.notes,
+      createdAt: payment.created_at,
+      message: 'Payment processed successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get payment record by ID
+app.get('/payment/:id', (req, res, next) => {
+  try {
+    const payment = db.prepare('SELECT * FROM payment_records WHERE id = ?').get(req.params.id);
+    
+    if (!payment) {
+      res.status(404).json({ message: 'Payment record not found' });
+      return;
+    }
+    
+    // Fetch related billing
+    const billing = db.prepare('SELECT * FROM billing_records WHERE id = ?').get(payment.billing_id);
+    
+    res.json({
+      id: payment.id,
+      billingId: payment.billing_id,
+      billing,
+      paymentAmount: payment.payment_amount,
+      paymentMethod: payment.payment_method,
+      paymentStatus: payment.payment_status,
+      remainingBalance: payment.remaining_balance,
+      notes: payment.notes,
+      createdAt: payment.created_at
     });
   } catch (error) {
     next(error);

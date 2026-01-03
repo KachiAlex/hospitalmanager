@@ -137,6 +137,14 @@ const billingSchema = z.object({
   discountPercentage: z.number().min(0).max(100).optional().default(0),
 });
 
+// Payment schema for processing payment
+const paymentSchema = z.object({
+  billingId: z.number().int().positive(),
+  paymentAmount: z.number().min(0.01),
+  paymentMethod: z.enum(['cash', 'card', 'check', 'insurance']),
+  notes: z.string().optional(),
+});
+
 module.exports = {
   patientSchema,
   enhancedPatientRegistrationSchema,
@@ -154,4 +162,5 @@ module.exports = {
   dischargeSchema,
   doctorDischargeSchema,
   billingSchema,
+  paymentSchema,
 };
