@@ -176,6 +176,76 @@ function init() {
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS discharge_records (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+      doctor_id INTEGER NOT NULL REFERENCES doctors(id),
+      admission_id INTEGER REFERENCES admissions(id),
+      status TEXT NOT NULL DEFAULT 'medical_discharge_pending',
+      discharge_date TEXT,
+      discharge_notes TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS billing_records (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      discharge_id INTEGER NOT NULL REFERENCES discharge_records(id) ON DELETE CASCADE,
+      patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+      subtotal REAL NOT NULL DEFAULT 0,
+      discount_percentage REAL DEFAULT 0,
+      discount_amount REAL DEFAULT 0,
+      total_amount REAL NOT NULL DEFAULT 0,
+      status TEXT DEFAULT 'billing_complete',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS billing_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      billing_id INTEGER NOT NULL REFERENCES billing_records(id) ON DELETE CASCADE,
+      description TEXT NOT NULL,
+      amount REAL NOT NULL,
+      quantity INTEGER DEFAULT 1,
+      item_type TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS payment_records (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      billing_id INTEGER NOT NULL REFERENCES billing_records(id) ON DELETE CASCADE,
+      payment_amount REAL NOT NULL,
+      payment_method TEXT NOT NULL,
+      payment_status TEXT DEFAULT 'complete',
+      remaining_balance REAL DEFAULT 0,
+      admin_id INTEGER NOT NULL,
+      notes TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS bed_releases (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      discharge_id INTEGER NOT NULL REFERENCES discharge_records(id) ON DELETE CASCADE,
+      bed_id INTEGER NOT NULL REFERENCES beds(id),
+      patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+      status TEXT DEFAULT 'available',
+      release_date TEXT,
+      admin_id INTEGER NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS discharge_audit (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      discharge_id INTEGER REFERENCES discharge_records(id) ON DELETE CASCADE,
+      action TEXT NOT NULL,
+      staff_id INTEGER NOT NULL,
+      staff_name TEXT NOT NULL,
+      staff_role TEXT,
+      details TEXT,
+      ip_address TEXT,
+      user_agent TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
     -- Create indexes for better query performance
     CREATE INDEX IF NOT EXISTS idx_patients_record_number ON patients(record_number);
     CREATE INDEX IF NOT EXISTS idx_patients_created_by ON patients(created_by);
@@ -188,6 +258,14 @@ function init() {
     CREATE INDEX IF NOT EXISTS idx_registration_audit_patient_id ON registration_audit(patient_id);
     CREATE INDEX IF NOT EXISTS idx_registration_audit_staff_id ON registration_audit(staff_id);
     CREATE INDEX IF NOT EXISTS idx_registration_audit_created_at ON registration_audit(created_at);
+    CREATE INDEX IF NOT EXISTS idx_discharge_records_patient_id ON discharge_records(patient_id);
+    CREATE INDEX IF NOT EXISTS idx_discharge_records_doctor_id ON discharge_records(doctor_id);
+    CREATE INDEX IF NOT EXISTS idx_discharge_records_status ON discharge_records(status);
+    CREATE INDEX IF NOT EXISTS idx_billing_records_discharge_id ON billing_records(discharge_id);
+    CREATE INDEX IF NOT EXISTS idx_payment_records_billing_id ON payment_records(billing_id);
+    CREATE INDEX IF NOT EXISTS idx_bed_releases_bed_id ON bed_releases(bed_id);
+    CREATE INDEX IF NOT EXISTS idx_discharge_audit_discharge_id ON discharge_audit(discharge_id);
+    CREATE INDEX IF NOT EXISTS idx_discharge_audit_staff_id ON discharge_audit(staff_id);
   `);
 
   const bedCount = db.prepare('SELECT COUNT(*) as count FROM beds').get().count;
