@@ -47,7 +47,8 @@ app.use(express.static(publicDir));
 function validate(schema, payload) {
   const parsed = schema.safeParse(payload);
   if (!parsed.success) {
-    const details = parsed.error.errors.map((err) => `${err.path.join('.')}: ${err.message}`).join('; ');
+    const issues = parsed.error.issues ?? [];
+    const details = issues.map((err) => `${err.path?.join('.') ?? 'value'}: ${err.message}`).join('; ') || parsed.error.message;
     const error = new Error(details);
     error.status = 400;
     throw error;
@@ -72,6 +73,63 @@ function mapPatient(row) {
   };
 }
 
+function getAuditContext(req, overrides = {}) {
+  let staffId =
+    overrides.staffId !== undefined
+      ? Number(overrides.staffId)
+      : req.staff?.id !== undefined
+        ? Number(req.staff.id)
+        : null;
+
+  if (Number.isNaN(staffId)) {
+    staffId = null;
+  }
+
+  if (staffId === null) {
+    throw Object.assign(new Error('Staff identification is required for audit logging'), { status: 401 });
+  }
+
+  let staffName = overrides.staffName;
+  if (typeof staffName === 'string') {
+    staffName = staffName.trim();
+  }
+  if (!staffName) {
+    const headerName = req.headers['x-staff-name'];
+    if (headerName && typeof headerName === 'string' && headerName.trim().length > 0) {
+      staffName = headerName.trim();
+    }
+  }
+  if (!staffName) {
+    staffName = req.staff?.name || `Staff ${staffId}`;
+  }
+
+  const ipAddress =
+    overrides.ipAddress ??
+    (req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0].trim() : req.ip || null);
+  const userAgent = overrides.userAgent ?? req.headers['user-agent'] ?? null;
+
+  return { staffId, staffName, ipAddress, userAgent };
+}
+
+function saveRegistrationAudit(entry) {
+  const stmt = db.prepare(`
+    INSERT INTO registration_audit (patient_id, action, staff_id, staff_name, details, ip_address, user_agent)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const result = stmt.run(
+    entry.patientId ?? null,
+    entry.action,
+    entry.staffId,
+    entry.staffName,
+    entry.details ?? null,
+    entry.ipAddress ?? null,
+    entry.userAgent ?? null
+  );
+
+  return db.prepare('SELECT * FROM registration_audit WHERE id = ?').get(result.lastInsertRowid);
+}
+
 function mapDoctor(row) {
   if (!row) return null;
   return {
@@ -88,6 +146,29 @@ function generateRecordNumber() {
   const timestamp = Date.now().toString().slice(-6);
   const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
   return `TH${timestamp}${random}`;
+}
+
+function createAuditEntry(req, audit) {
+  try {
+    const context = getAuditContext(req, {
+      staffId: audit.staffId,
+      staffName: audit.staffName,
+      ipAddress: audit.ipAddress,
+      userAgent: audit.userAgent
+    });
+
+    return saveRegistrationAudit({
+      ...audit,
+      staffId: context.staffId,
+      staffName: context.staffName,
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent
+    });
+  } catch (error) {
+    const err = new Error(error.message || 'Audit logging failed');
+    err.status = error.status || 500;
+    throw err;
+  }
 }
 
 // Staff authorization middleware
@@ -284,25 +365,19 @@ app.post('/patients', requireStaffAuth, (req, res, next) => {
         }
         
         // Create audit log
-        const insertAudit = db.prepare(`
-          INSERT INTO registration_audit (patient_id, action, staff_id, staff_name, details)
-          VALUES (?, ?, ?, ?, ?)
-        `);
-        
         const auditDetails = JSON.stringify({
           accountType: payload.accountType,
           hasNextOfKin: !!payload.nextOfKin,
           familyMembersCount: payload.familyMembers ? payload.familyMembers.length : 0
         });
-        
-        insertAudit.run(
+
+        createAuditEntry(req, {
           patientId,
-          'patient_created',
-          payload.createdBy,
-          `Staff ${payload.createdBy}`, // This should be enhanced with actual staff name lookup
-          auditDetails
-        );
-        
+          action: 'patient_created',
+          staffId: payload.createdBy,
+          details: auditDetails
+        });
+
         return {
           patientId,
           recordNumber,
@@ -351,24 +426,42 @@ app.post('/patients', requireStaffAuth, (req, res, next) => {
       const payload = validate(patientSchema, req.body);
       const recordNumber = generateRecordNumber();
       
-      const stmt = db.prepare(`
-        INSERT INTO patients (first_name, middle_name, last_name, gender, date_of_birth, contact_info, account_type, record_number, created_by)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-      
-      const result = stmt.run(
-        payload.firstName,
-        payload.middleName || null,
-        payload.lastName,
-        payload.gender,
-        payload.dateOfBirth,
-        payload.contactInfo || null,
-        payload.accountType || 'personal',
-        recordNumber,
-        payload.createdBy || null
-      );
-      
-      const patient = mapPatient(db.prepare('SELECT * FROM patients WHERE id = ?').get(result.lastInsertRowid));
+      const createLegacyPatient = db.transaction(() => {
+        const stmt = db.prepare(`
+          INSERT INTO patients (first_name, middle_name, last_name, gender, date_of_birth, contact_info, account_type, record_number, created_by)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        
+        const result = stmt.run(
+          payload.firstName,
+          payload.middleName || null,
+          payload.lastName,
+          payload.gender,
+          payload.dateOfBirth,
+          payload.contactInfo || null,
+          payload.accountType || 'personal',
+          recordNumber,
+          payload.createdBy || null
+        );
+        
+        const patientId = result.lastInsertRowid;
+
+        createAuditEntry(req, {
+          patientId,
+          action: 'patient_created',
+          staffId: payload.createdBy,
+          details: JSON.stringify({
+            accountType: payload.accountType || 'personal',
+            hasNextOfKin: false,
+            familyMembersCount: 0
+          })
+        });
+
+        return patientId;
+      });
+
+      const patientId = createLegacyPatient();
+      const patient = mapPatient(db.prepare('SELECT * FROM patients WHERE id = ?').get(patientId));
       res.status(201).json(patient);
     }
   } catch (error) {
@@ -542,23 +635,17 @@ app.post('/patients/:id/resend-welcome-email', requireStaffAuth, async (req, res
 app.post('/registration-audit', requireStaffAuth, (req, res, next) => {
   try {
     const payload = validate(registrationAuditSchema, req.body);
-    
-    const stmt = db.prepare(`
-      INSERT INTO registration_audit (patient_id, action, staff_id, staff_name, details, ip_address, user_agent)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `);
-    
-    const result = stmt.run(
-      payload.patientId || null,
-      payload.action,
-      payload.staffId,
-      payload.staffName,
-      payload.details || null,
-      payload.ipAddress || null,
-      payload.userAgent || null
-    );
-    
-    const audit = db.prepare('SELECT * FROM registration_audit WHERE id = ?').get(result.lastInsertRowid);
+
+    const audit = createAuditEntry(req, {
+      patientId: payload.patientId,
+      action: payload.action,
+      staffId: payload.staffId,
+      staffName: payload.staffName,
+      details: payload.details,
+      ipAddress: payload.ipAddress,
+      userAgent: payload.userAgent
+    });
+
     res.status(201).json(audit);
   } catch (error) {
     next(error);
