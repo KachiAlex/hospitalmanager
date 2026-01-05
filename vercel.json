@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npm install && npm run --prefix client install --no-audit --no-fund && npm run build && npm run --prefix client build",
+  "installCommand": "npm install && npm run --prefix client install",
+  "framework": null,
+  "functions": {
+    "api/index.js": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}

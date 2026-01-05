@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const {
   patientSchema,
   enhancedPatientRegistrationSchema,
@@ -42,7 +43,16 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 const publicDir = path.join(__dirname, '..', 'public');
-app.use(express.static(publicDir));
+const clientDistDir = path.join(__dirname, '..', 'client', 'dist');
+const clientIndexPath = path.join(clientDistDir, 'index.html');
+const hasClientBuild = fs.existsSync(clientIndexPath);
+
+if (hasClientBuild) {
+  app.use(express.static(clientDistDir));
+} else {
+  app.use(express.static(publicDir));
+}
+app.use('/docs', express.static(publicDir));
 
 function validate(schema, payload) {
   const parsed = schema.safeParse(payload);
@@ -253,9 +263,14 @@ function verifyStaffExists(req, res, next) {
 }
 
 app.get('/', (_req, res) => {
-  // Temporary log to confirm traffic reaches this route.
-  // eslint-disable-next-line no-console
-  console.log('Serving landing page from', publicDir);
+  if (hasClientBuild) {
+    res.sendFile(clientIndexPath);
+    return;
+  }
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
+
+app.get('/docs', (_req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
 });
 
