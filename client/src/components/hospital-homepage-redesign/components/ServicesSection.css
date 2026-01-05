@@ -1,0 +1,110 @@
+:root {
+  --services-card-radius: 24px;
+}
+
+.redesign-services-section {
+  padding: var(--redesign-spacing-2xl) 0;
+  background: var(--redesign-background-white);
+}
+
+.redesign-section-header {
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto var(--redesign-spacing-3xl);
+}
+
+.redesign-services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--redesign-spacing-xl);
+}
+
+.redesign-service-card {
+  background: white;
+  border-radius: var(--services-card-radius);
+  box-shadow: 0 25px 60px rgba(16, 24, 40, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 300ms ease, box-shadow 300ms ease;
+  cursor: pointer;
+}
+
+.redesign-service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 35px 80px rgba(13, 38, 76, 0.18);
+}
+
+.redesign-service-image-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.redesign-service-image-frame img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  display: block;
+}
+
+.redesign-service-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.6));
+}
+
+.redesign-service-badge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--redesign-primary-blue);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.redesign-service-content {
+  padding: var(--redesign-spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--redesign-spacing-md);
+}
+
+.redesign-service-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.redesign-service-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.redesign-service-features li::before {
+  content: "✔";
+  color: var(--redesign-emergency-red);
+  font-size: 0.85rem;
+}
+
+.redesign-btn-ghost {
+  border: 1px solid var(--redesign-primary-blue);
+  color: var(--redesign-primary-blue);
+  background: transparent;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .redesign-service-content {
+    padding: var(--redesign-spacing-lg);
+  }
+
+  .redesign-service-card {
+    border-radius: 20px;
+  }
+}

@@ -3,6 +3,8 @@ import { HospitalHomepageRedesignProps } from './types';
 import { defaultRedesignContentManager } from './data/contentManager';
 import HeroSection from './components/HeroSection';
 import AboutSection from './components/AboutSection';
+import ServicesSection from './components/ServicesSection';
+
 import './components/HeroSection.css';
 import './components/AboutSection.css';
 import './styles/medical-branding.css';
